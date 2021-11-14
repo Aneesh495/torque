@@ -1,0 +1,96 @@
+# Torque Root Workspace Configuration
+[workspace]
+resolver = "2"
+members = [
+    "crates/torque-core",
+    "crates/torque-proto",
+    "crates/torque-router",
+    "crates/torque-balance",
+    "crates/torque-resilience",
+    "crates/torque-cache",
+    "crates/torque-filter",
+    "crates/torque-upstream",
+    "crates/torque-config",
+    "crates/torque-metrics",
+    "crates/torque-admin",
+    "crates/torque-server",
+    "crates/torque-cli",
+    "crates/torque-bench",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Aneesh Krishna <aneeshkrishnaparthasarathy@gmail.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Aneesh495/torque"
+readme = "README.md"
+keywords = ["reverse-proxy", "api-gateway", "service-mesh", "traffic-engineering", "load-balancing"]
+categories = ["network-programming", "asynchronous", "web-programming::http-server"]
+
+[workspace.dependencies]
+# Async runtime and primitives
+tokio = { version = "1.38", features = ["full"] }
+tokio-util = { version = "0.7", features = ["codec", "io"] }
+futures = "0.3"
+futures-util = "0.3"
+async-trait = "0.1"
+
+# Serialization and configuration
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+toml = "0.8"
+
+# Byte utilities and hashing
+bytes = "1.6"
+byteorder = "1.5"
+parking_lot = "0.12"
+arc-swap = "1.7"
+crossbeam-utils = "0.8"
+crossbeam-queue = "0.3"
+dashmap = "5.5"
+regex = "1.10"
+sha2 = "0.10"
+sha1 = "0.10"
+hmac = "0.12"
+base64 = "0.22"
+hex = "0.4"
+crc32fast = "1.4"
+rand = "0.8"
+flate2 = "1.0"
+
+# CLI and formatting
+clap = { version = "4.5", features = ["derive", "cargo"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "time"] }
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Local crates
+torque-core = { path = "crates/torque-core" }
+torque-proto = { path = "crates/torque-proto" }
+torque-router = { path = "crates/torque-router" }
+torque-balance = { path = "crates/torque-balance" }
+torque-resilience = { path = "crates/torque-resilience" }
+torque-cache = { path = "crates/torque-cache" }
+torque-filter = { path = "crates/torque-filter" }
+torque-upstream = { path = "crates/torque-upstream" }
+torque-config = { path = "crates/torque-config" }
+torque-metrics = { path = "crates/torque-metrics" }
+torque-admin = { path = "crates/torque-admin" }
+torque-server = { path = "crates/torque-server" }
+torque-cli = { path = "crates/torque-cli" }
+torque-bench = { path = "crates/torque-bench" }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+overflow-checks = false
+
+[profile.dev]
+opt-level = 0
+debug = true
+overflow-checks = true
