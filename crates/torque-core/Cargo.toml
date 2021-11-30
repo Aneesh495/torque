@@ -1,0 +1,19 @@
+[package]
+name = "torque-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Core memory pools, lock-free ring buffers, atomics, clock, and error primitives for Torque"
+
+[dependencies]
+bytes.workspace = true
+crossbeam-utils.workspace = true
+crossbeam-queue.workspace = true
+parking_lot.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros", "time"] }
+rand.workspace = true
