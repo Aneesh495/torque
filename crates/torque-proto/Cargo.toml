@@ -1,0 +1,19 @@
+[package]
+name = "torque-proto"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "HTTP/1.1, HTTP/2 (RFC 7540), HPACK (RFC 7541), and WebSocket protocol codecs for Torque"
+
+[dependencies]
+torque-core = { workspace = true }
+bytes.workspace = true
+byteorder.workspace = true
+sha1.workspace = true
+base64.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros"] }
