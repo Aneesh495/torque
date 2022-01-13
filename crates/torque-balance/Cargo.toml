@@ -1,0 +1,18 @@
+[package]
+name = "torque-balance"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Load balancing algorithms (SWRR, P2C Peak-EWMA, Ketama, Maglev) and health checking for Torque"
+
+[dependencies]
+torque-core = { workspace = true }
+torque-proto = { workspace = true }
+rand.workspace = true
+parking_lot.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros", "time"] }
