@@ -1,0 +1,18 @@
+[package]
+name = "torque-cache"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "RFC 7234 compliant HTTP cache with Adaptive Replacement Cache (ARC) engine for Torque"
+
+[dependencies]
+torque-core = { workspace = true }
+torque-proto = { workspace = true }
+bytes.workspace = true
+parking_lot.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros"] }
