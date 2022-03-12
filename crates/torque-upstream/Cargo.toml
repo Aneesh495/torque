@@ -1,0 +1,20 @@
+[package]
+name = "torque-upstream"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Multiplexed connection pool and upstream HTTP/1.1 client for Torque"
+
+[dependencies]
+torque-core = { workspace = true }
+torque-proto = { workspace = true }
+torque-balance = { workspace = true }
+tokio = { workspace = true, features = ["net", "io-util", "time", "sync"] }
+bytes.workspace = true
+parking_lot.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros", "net", "io-util"] }
