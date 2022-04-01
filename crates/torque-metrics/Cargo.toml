@@ -1,0 +1,18 @@
+[package]
+name = "torque-metrics"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Zero-allocation lock-free Prometheus metrics registry and HDR histogram for Torque"
+
+[dependencies]
+torque-core = { workspace = true }
+torque-proto = { workspace = true }
+dashmap.workspace = true
+parking_lot.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros"] }
