@@ -206,6 +206,20 @@ impl TorqueError {
         }
     }
 
+    /// Construct a new HPACK error with message detail.
+    pub fn hpack(msg: impl Into<String>) -> Self {
+        TorqueError::Hpack {
+            detail: msg.into(),
+        }
+    }
+
+    /// Construct a new WebSocket error with message detail.
+    pub fn websocket(msg: impl Into<String>) -> Self {
+        TorqueError::WebSocket {
+            detail: msg.into(),
+        }
+    }
+
     /// Construct a new protocol error wrapping an underlying error source.
     pub fn protocol_with_source<E>(msg: impl Into<String>, source: E) -> Self
     where
