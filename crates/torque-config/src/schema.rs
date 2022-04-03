@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Root configuration holding all proxy and service mesh settings.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct TorqueConfig {
     #[serde(default)]
     pub server: ServerConfig,
