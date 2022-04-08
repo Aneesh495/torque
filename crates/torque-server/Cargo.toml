@@ -1,0 +1,28 @@
+[package]
+name = "torque-server"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "torque-server module for Torque"
+
+[dependencies]
+tokio = { workspace = true, features = ["full"] }
+bytes.workspace = true
+dashmap.workspace = true
+parking_lot.workspace = true
+arc-swap.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+torque-core = { workspace = true }
+torque-proto = { workspace = true }
+torque-router = { workspace = true }
+torque-balance = { workspace = true }
+torque-resilience = { workspace = true }
+torque-cache = { workspace = true }
+torque-filter = { workspace = true }
+torque-upstream = { workspace = true }
+torque-config = { workspace = true }
+torque-metrics = { workspace = true }
+torque-admin = { workspace = true }
