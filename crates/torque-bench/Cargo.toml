@@ -1,0 +1,26 @@
+[package]
+name = "torque-bench"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Ultra high-throughput load generator and latency benchmarking harness for Torque"
+
+[[bin]]
+name = "torque-bench"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { workspace = true, features = ["full"] }
+bytes.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+clap = { workspace = true, features = ["derive", "cargo"] }
+parking_lot.workspace = true
+anyhow.workspace = true
+torque-core = { workspace = true }
+torque-proto = { workspace = true }
+torque-metrics = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["rt", "macros", "net"] }
