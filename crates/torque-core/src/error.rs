@@ -198,6 +198,11 @@ impl TorqueError {
         }
     }
 
+    /// Construct a new I/O error.
+    pub fn io(err: std::io::Error) -> Self {
+        TorqueError::Io { source: err }
+    }
+
     /// Construct a new protocol error with message detail.
     pub fn protocol(msg: impl Into<String>) -> Self {
         TorqueError::Protocol {
