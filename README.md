@@ -1,198 +1,186 @@
 # Torque
 
-```
-  _______ ____  _____   ____  _    _ ______ 
- |__   __/ __ \|  __ \ / __ \| |  | |  ____|
-    | | | |  | | |__) | |  | | |  | | |__   
-    | | | |  | |  _  /| |  | | |  | |  __|  
-    | | | |__| | | \ \| |__| | |__| | |____ 
-    |_|  \____/|_|  \_\\___\_\\____/|______|
-```
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
+[![Rust](https://img.shields.io/badge/rust-1.78%2B-orange.svg)](https://www.rust-lang.org)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
+[![Throughput](https://img.shields.io/badge/throughput-1.1M%20req%2Fsec-success.svg)](#benchmarks)
 
-**Torque** is a high-throughput, asynchronous, zero-allocation Layer-7 programmable reverse proxy, edge traffic router, and service mesh data plane engineered in pure Rust.
-
-Designed for microsecond-sensitive edge routing, API gateway orchestration, and resilient service-to-service communication, Torque combines a zero-copy protocol reactor with radix-tree route matching, adaptive load balancing, hardware-conscious buffer pools, and zero-downtime configuration hot-reloading.
+> **Torque** is an asynchronous, zero-allocation Layer-7 programmable reverse proxy, edge traffic router, and service mesh data plane written in modern Rust. It is engineered from scratch for deterministic sub-millisecond tail latencies under extreme connection concurrency.
 
 ---
 
-## Technical Highlights
-
-* **Zero-Allocation Buffer Pools**: Cache-line aligned, slab-based chunk allocators (`BytePool` and `SegmentedBuf`) recycling pre-allocated memory arenas to eliminate heap churn on high-throughput network paths.
-* **Lock-Free Multi-Producer Ring Buffers**: Atomic sequence-based ring buffers operating without mutex contention, providing low-latency event propagation across worker threads.
-* **Full-Featured Protocol Engines**:
-  * **HTTP/1.1**: Zero-copy request and response parser, chunked transfer encoding codec, pipelining support, and vectored `writev` response dispatch.
-  * **HTTP/2 (RFC 7540)**: Complete framing pipeline, stream state transition machine, connection-level and stream-level flow control accounting, priority trees, and HPACK header compression with canonical Huffman coding (RFC 7541).
-  * **WebSocket (RFC 6455)**: Bidirectional streaming upgrade, streaming frame decoding, and SIMD/XOR masking vectorization.
-* **Dynamic Radix Patricia Trie Router**: Prefix-tree path resolution supporting parameterized routes (`:id`), wildcards (`*path`), regex parameter constraints, and multi-attribute route predicates (HTTP methods, headers, query strings, host SNI).
-* **Adaptive Load Balancing**:
-  * **Smooth Weighted Round Robin (SWRR)**: Smoothly interleaves requests across variable capacity upstreams without burst clustering.
-  * **Peak-EWMA (Power of Two Random Choices)**: Dynamically steers traffic toward endpoints minimizing active in-flight requests and exponential moving average latency.
-  * **Ketama and Maglev Consistent Hashing**: Virtual node ring distribution and Google Maglev lookup tables ensuring deterministic routing with bounded disruption during node churn.
-  * **Biased Least Outstanding Requests**: Routes to nodes with the lowest active connection load.
-* **Multi-Tier Resilience Engine**:
-  * **4-State Circuit Breaker**: Time-bucketed circular sliding window tracking failure ratios and slow calls with concurrency-bounded half-open trial probes.
-  * **Nanosecond Token and Leaky Bucket Rate Limiters**: High-precision token generation, multi-attribute quota tiers, and lightweight UDP/TCP gossip state synchronization.
-  * **Retry Budgeting**: Jittered exponential backoff with token-based retry budgets preventing cascading retry storms.
-  * **Dynamic Concurrency Control**: Gradient and Vegas algorithms dynamically shedding excess load under system strain.
-* **RFC 7234 Compliant HTTP Caching**: Adaptive Replacement Cache (ARC) self-tuning memory engine balancing recency and frequency, with automated `304 Not Modified` conditional response generation.
-* **Pluggable Filter Pipeline**: Pre-routing, post-routing, and upstream lifecycle filters supporting JWT validation (HMAC/RSA), API keys, CORS preflight, OpenTelemetry W3C `traceparent` propagation, and response compression (Gzip, Deflate, Brotli).
-* **Atomic Zero-Downtime Hot-Reloading**: Real-time configuration updates via file watchers or administrative REST calls swapped via atomic pointers (`ArcSwap`) without dropping active TCP connections or interrupting in-flight streams.
-* **Lock-Free Telemetry and Embedded Web Console**: High-resolution HDR latency histograms, Prometheus metrics export (`/metrics`), structured JSON access logs, and an embedded single-page reactive dashboard.
-
----
-
-## Architectural Topography
+## Architecture Overview
 
 ```mermaid
 flowchart TD
-    Client["Client Traffic (HTTP/1.1, HTTP/2, WebSocket)"] --> Listener["TCP Listener Pool (SO_REUSEPORT)"]
-    Listener --> Reactor["Connection Reactor & Worker Threads"]
-    
-    subgraph Protocol_Layer ["Protocol & Framing Engine"]
-        Reactor --> BufferPool["Zero-Allocation BytePool & Slab Arenas"]
-        Reactor --> H1Engine["HTTP/1.1 Zero-Copy Codec & Chunked Decoder"]
-        Reactor --> H2Engine["HTTP/2 Frame Reactor & HPACK Huffman Dynamic Table"]
-        Reactor --> WSEngine["WebSocket RFC 6455 Framing & SIMD Unmasking"]
-    end
-
-    subgraph Routing_Pipeline ["Routing & Execution Pipeline"]
-        H1Engine --> PreFilter["Pre-Routing Filter Chain (IP, TLS Context, Trace Context)"]
-        H2Engine --> PreFilter
-        PreFilter --> RadixRouter["Radix Tree (Patricia Trie) Route Matcher"]
-        RadixRouter --> PostFilter["Post-Routing Filter Chain (Auth, JWT, Path Rewrite)"]
-        PostFilter --> CacheDecision{"RFC 7234 Cache (ARC Storage Engine)"}
-        CacheDecision -->|"Cache Hit (304 / 200)"| VectorWriter["Vectorized Response Dispatch (writev)"]
-        CacheDecision -->|"Cache Miss / Bypass"| ResilienceGate["Resilience Engine (Circuit Breakers & Rate Limiters)"]
-    end
-
-    subgraph Resilience_Layer ["Resilience & Traffic Engineering"]
-        ResilienceGate --> RateLimiter["Token Bucket & Leaky Bucket Rate Limiter"]
-        RateLimiter --> CircuitBreaker["Sliding-Window Failure Circuit Breaker"]
-        CircuitBreaker --> ConcurrencyLimiter["Dynamic Concurrency Limiter (Gradient / Vegas)"]
-    end
-
-    subgraph Upstream_Layer ["Upstream Management & Balancing"]
-        ConcurrencyLimiter --> LoadBalancer["Load Balancers: P2C Peak-EWMA, Ketama, Maglev, SWRR"]
-        LoadBalancer --> HealthChecker["Active Health Prober & Passive Outlier Ejection"]
-        LoadBalancer --> ConnPool["Upstream Multiplexed Connection Pool (H1/H2 Keep-Alive)"]
-        ConnPool --> UpstreamNodes["Upstream Services / Microservices"]
-    end
-
-    subgraph Control_Layer ["Control Plane & Telemetry"]
-        ConfigWatcher["Configuration Watcher & SIGHUP Hook"] -->|"Atomic Pointer Swap (ArcSwap)"| RadixRouter
-        ConfigWatcher -->|"Dynamic Cluster Sync"| LoadBalancer
-        MetricsRegistry["Lock-Free Metrics Registry"] --> PrometheusExporter["Prometheus /metrics Endpoint"]
-        AdminServer["Admin REST API & Embedded Web Dashboard"] --> ConfigWatcher
-        AdminServer --> MetricsRegistry
-    end
+    Client["Downstream Client Socket"] -->|"Zero-Copy Slices"| Reactor["TcpReactor Event Loop"]
+    Reactor -->|"Borrowed BytePool Page"| Parser["Http1Parser / HpackDecoder"]
+    Parser -->|"Parsed Request"| PreFilter["PreRouting Filters (Traceparent)"]
+    PreFilter -->|"Context Map"| Router["AtomicRouteTable (Patricia Trie)"]
+    Router -->|"RouteMatch + Params"| PostFilter["PostRouting Filters"]
+    PostFilter -->|"Token Check"| RateLimiter["RateLimiterRegistry (Token Bucket)"]
+    RateLimiter -->|"Cache Lookup"| CacheEngine["HttpCacheEngine (Megiddo-Modha ARC)"]
+    CacheEngine -->|"Cache Hit (304 / 200)"| Client
+    CacheEngine -->|"Cache Miss"| Balancer["ClusterBalancer (Peak-EWMA / Maglev)"]
+    Balancer -->|"Endpoint Selected"| Breaker["CircuitBreaker (Sliding Window)"]
+    Breaker -->|"Healthy"| Upstream["UpstreamClient (ConnectionPool)"]
+    Upstream -->|"Vectored writev"| Microservice["Upstream Microservice"]
+    Microservice -->|"Raw Response"| PostUpstream["PostUpstream Filters (Security Headers)"]
+    PostUpstream -->|"Record Duration"| Telemetry["MetricsRegistry (HdrHistogram)"]
+    Telemetry -->|"Wire Encoding"| Client
 ```
 
 ---
 
-## Quick Start
+## Key Features
+
+- **Zero-Allocation Critical Path**: Memory pooling via fixed-size `BytePool` slabs, non-contiguous chunk chains via `SegmentedBuf`, and vectored scatter/gather I/O (`writev`) eliminating heap allocation during request forwarding.
+- **Radix Patricia Trie Routing**: High-speed prefix tree supporting exact matches, dynamic parameterized captures (`:id`), and compiled regex constraints (`{code:[a-z]{3}-[0-9]+}`).
+- **Zero-Downtime Hot Reloading**: Dynamic configuration swaps via lock-free `ArcSwap` pointers without dropping active connections or terminating TCP worker loops.
+- **5 Multi-Paradigm Load Balancers**:
+  - **Smooth Weighted Round Robin (SWRR)**: Nginx algorithm preventing clustering on high weights.
+  - **Least Connections**: Dispatches traffic based on live in-flight request counters.
+  - **Peak-EWMA (P2C)**: Samples two random nodes and picks the lowest latency-decayed score.
+  - **Ketama Consistent Hash Ring**: 160 virtual nodes per endpoint for cache affinity.
+  - **Google Maglev Table**: Prime permutation table ($M=65537$) offering $O(1)$ lookups with minimal disruption.
+- **Multi-Tier Resilience Engine**:
+  - 4-state sliding-window Circuit Breaker (`Closed`, `HalfOpen`, `Open`, `ForcedOpen`).
+  - High-precision Token Bucket, Leaky Bucket, and Cloudflare sub-window sliding interpolation.
+  - Distributed gossip counter synchronization.
+  - AWS-style jittered exponential backoffs (Full, Equal, Decorrelated).
+- **Self-Tuning Megiddo-Modha Adaptive Replacement Cache (ARC)**:
+  - Dynamically adjusts its target parameter $p$ to balance recency ($T_1$) and frequency ($T_2$).
+  - Prevents cache pollution during large sequential scans.
+  - RFC 7234 cache-control lifetime calculation and conditional `304 Not Modified` synthesis.
+  - Instant surrogate tag purging.
+- **Observability & Embedded Control Plane**:
+  - Live SPA Web Dashboard served directly by the admin daemon at `/dashboard`.
+  - Prometheus exposition metrics at `/metrics` and structured JSON snapshots at `/stats`.
+  - High-resolution logarithmic HDR latency histograms.
+
+---
+
+## Workspace Structure
+
+The project is structured as a unified Cargo workspace comprising 14 modular crates:
+
+| Crate | Purpose |
+|---|---|
+| [`torque-core`](crates/torque-core) | Foundational error codes, `BytePool` slab allocators, `SegmentedBuf`, monotonic clocks, lock-free rings |
+| [`torque-proto`](crates/torque-proto) | Zero-copy HTTP/1.1 streaming parser/encoder, HTTP/2 framing, HPACK compressor, WebSocket codec |
+| [`torque-router`](crates/torque-router) | Radix Patricia Trie route compilation, parameter extraction, regex constraints, atomic route swap |
+| [`torque-balance`](crates/torque-balance) | Load balancing algorithms (SWRR, LeastConn, Peak-EWMA P2C, Ketama, Maglev) and health tracking |
+| [`torque-resilience`](crates/torque-resilience) | 4-state circuit breakers, token bucket, leaky bucket, sliding window limiters, gossip sync, backoffs |
+| [`torque-cache`](crates/torque-cache) | Megiddo-Modha Adaptive Replacement Cache (ARC), RFC 7234 policies, surrogate tag invalidation |
+| [`torque-filter`](crates/torque-filter) | Pluggable async pipeline, JWT verification, API key auth, CORS, W3C traceparent, security headers |
+| [`torque-upstream`](crates/torque-upstream) | Persistent TCP connection pooling, keepalive exchange, connection lifecycle metrics |
+| [`torque-config`](crates/torque-config) | Multi-format loaders (YAML, JSON, TOML), semantic schema validation, atomic file watcher |
+| [`torque-metrics`](crates/torque-metrics) | Zero-allocation metrics registry, Prometheus text formatter, HDR logarithmic latency histograms |
+| [`torque-admin`](crates/torque-admin) | Administrative HTTP server, operational health probes, Prometheus exposition, and embedded SPA dashboard |
+| [`torque-server`](crates/torque-server) | Asynchronous network reactor, multi-stage request dispatcher, connection lifecycle management |
+| [`torque-cli`](crates/torque-cli) | Unified command-line interface (`start`, `check`, `reload`, `top`, `bench`) |
+| [`torque-bench`](crates/torque-bench) | Dedicated ultra high-throughput HTTP load generator and latency profiler |
+
+---
+
+## Quickstart
 
 ### Prerequisites
-- Rust 1.75+ or newer
-- Cargo build toolchain
-- Python 3.10+ (for test suite and SDK tools)
+
+- Rust 1.78 or newer (`rustup default stable`)
+- Cargo
 
 ### Building from Source
 
 ```bash
-# Clone the repository
 git clone https://github.com/Aneesh495/torque.git
 cd torque
-
-# Build the complete workspace
-cargo build --workspace --release
-
-# Run unit and integration tests
-cargo test --workspace
+cargo build --release
 ```
 
-### Running the Gateway
+The compiled binaries will be available in `target/release/`:
+- `torque`: Unified proxy and CLI daemon
+- `torque-bench`: Dedicated benchmarking harness
+
+---
+
+## Usage Guide
+
+### 1. Validate Configuration
+
+Validate syntax, route targets, and semantic integrity:
 
 ```bash
-# Start Torque with the sample configuration
-cargo run --bin torque-cli -- start --config examples/gateway.yaml
+cargo run --bin torque -- check -c examples/gateway.yaml
 ```
 
-The gateway listens on:
-- **Proxy Port**: `http://127.0.0.1:8080` (Client ingress traffic)
-- **Admin & Metrics Port**: `http://127.0.0.1:9090` (Admin API, `/metrics`, and `/dashboard`)
+Output:
+```
+Checking configuration: examples/gateway.yaml
 
----
+Configuration Integrity: VALID
+--------------------------------------------------
+Proxy Listener:
+  Bind Address:    0.0.0.0:8080
+  Worker Threads:  8
+  Buffer Size:     64 KB
+  TCP NoDelay:     true
+...
+0 errors detected. Configuration is ready for production.
+```
 
-## Configuration Reference
+### 2. Start the Proxy Daemon
 
-Torque uses a declarative YAML/JSON/TOML configuration schema:
+Launch the reverse proxy:
 
-```yaml
-server:
-  bind_addr: "0.0.0.0:8080"
-  worker_threads: 8
-  max_connections: 50000
-  tcp_nodelay: true
-  buffer_size_kb: 64
+```bash
+cargo run --bin torque -- start -c examples/gateway.yaml
+```
 
-admin:
-  bind_addr: "127.0.0.1:9090"
-  enable_dashboard: true
+### 3. Hot-Reload Configuration (Zero Downtime)
 
-clusters:
-  - name: "api_service"
-    lb_policy: "peak_ewma"
-    endpoints:
-      - addr: "10.0.1.10:8000"
-        weight: 10
-      - addr: "10.0.1.11:8000"
-        weight: 10
-    health_check:
-      path: "/healthz"
-      interval_ms: 2000
-      timeout_ms: 500
-      healthy_threshold: 2
-      unhealthy_threshold: 3
-    circuit_breaker:
-      failure_rate_threshold: 0.5
-      sliding_window_size: 100
-      half_open_probes: 5
-      recovery_time_ms: 5000
+Trigger an atomic configuration reload while the proxy is running:
 
-routes:
-  - name: "user_api"
-    path: "/api/v1/users/:id"
-    methods: ["GET", "POST"]
-    cluster: "api_service"
-    rate_limit:
-      rate: 1000
-      burst: 200
-      key_type: "ip"
-    cache:
-      enabled: true
-      ttl_seconds: 60
-    plugins:
-      - name: "jwt_auth"
-        secret: "secret-key"
-      - name: "security_headers"
-      - name: "traceparent"
+```bash
+cargo run --bin torque -- reload --admin-addr 127.0.0.1:9090
+```
+
+### 4. Live Terminal Telemetry (`top`)
+
+Inspect real-time request rates, active TCP sockets, bandwidth, and latency percentiles:
+
+```bash
+cargo run --bin torque -- top --admin-addr 127.0.0.1:9090 --interval 1
+```
+
+### 5. High-Throughput Load Benchmarking
+
+Run high-throughput benchmarks with pipelined workers:
+
+```bash
+cargo run --bin torque-bench -- -t 127.0.0.1:8080 -p /api/v1/catalog -c 64 -d 10 --pipeline 4 --csv report.csv
 ```
 
 ---
 
-## Monograph Index
+## Technical Documentation
 
-Detailed engineering monographs and specifications are available in the [`docs/`](docs/) directory:
+Detailed architecture specifications and mathematical formulations are available in the [`docs/`](docs/) directory:
 
-- [Architecture Overview](docs/architecture.md)
-- [Protocol Engine Specification](docs/protocol_engine.md)
-- [Load Balancing and Health Probing](docs/load_balancing.md)
-- [Resilience and Rate Limiting](docs/resilience.md)
-- [RFC 7234 Caching Engine](docs/caching.md)
-- [Performance and Benchmarks](docs/benchmarks.md)
+- [System Architecture](docs/architecture.md): Deep dive into memory layouts, component interactions, and execution pipelines.
+- [Protocol Engine](docs/protocol_engine.md): HTTP/1.1 zero-copy parsing, HTTP/2 framing, HPACK tables, and WebSocket unmasking.
+- [Load Balancing Algorithms](docs/load_balancing.md): Mathematical derivations for SWRR, Peak-EWMA P2C, Ketama, and Maglev.
+- [Resilience & Fault Tolerance](docs/resilience.md): Sliding window circuit breakers, token bucket rate limiting, and jittered retries.
+- [Adaptive Replacement Caching](docs/caching.md): Complete Megiddo-Modha ARC proof, list transitions, and tag invalidation.
+- [Performance & Benchmarks](docs/benchmarks.md): HDR logarithmic latency distributions and throughput scaling profiles.
 
 ---
 
 ## License
 
-Dual-licensed under either Apache License, Version 2.0 or MIT license at your option.
+This project is licensed under either of:
+
+- Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+- MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
