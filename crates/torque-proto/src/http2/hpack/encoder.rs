@@ -35,14 +35,18 @@ impl HpackEncoder {
                     // Literal with Incremental Indexing - Indexed Name: 01xxxxxx
                     encode_integer(idx, 6, 0x40, dst);
                     encode_string(value, true, dst);
-                    self.table.dynamic.insert(name.to_string(), value.to_string());
+                    self.table
+                        .dynamic
+                        .insert(name.to_string(), value.to_string());
                 }
             } else {
                 // Literal with Incremental Indexing - New Name: 01000000
                 dst.push(0x40);
                 encode_string(name, true, dst);
                 encode_string(value, true, dst);
-                self.table.dynamic.insert(name.to_string(), value.to_string());
+                self.table
+                    .dynamic
+                    .insert(name.to_string(), value.to_string());
             }
         }
     }

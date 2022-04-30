@@ -20,7 +20,12 @@ pub struct ConcurrencyLimiter {
 
 impl ConcurrencyLimiter {
     /// Construct a new concurrency limiter for a cluster.
-    pub fn new(cluster: impl Into<String>, initial_limit: f64, min_limit: f64, max_limit: f64) -> Self {
+    pub fn new(
+        cluster: impl Into<String>,
+        initial_limit: f64,
+        min_limit: f64,
+        max_limit: f64,
+    ) -> Self {
         Self {
             cluster: cluster.into(),
             current_limit: AtomicF64::new(initial_limit),

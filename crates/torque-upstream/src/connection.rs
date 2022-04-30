@@ -47,14 +47,13 @@ impl UpstreamConnection {
         Http1Encoder::encode_request(req, &mut req_buf);
 
         let exchange_fut = async {
-            self.stream
-                .write_all(&req_buf)
-                .await
-                .map_err(|e| TorqueError::UpstreamUnreachable {
+            self.stream.write_all(&req_buf).await.map_err(|e| {
+                TorqueError::UpstreamUnreachable {
                     cluster: "upstream".to_string(),
                     endpoint: self.addr.to_string(),
                     detail: format!("Write error: {}", e),
-                })?;
+                }
+            })?;
 
             let mut resp_buf = Vec::with_capacity(4096);
             let mut chunk = [0u8; 4096];
@@ -73,7 +72,8 @@ impl UpstreamConnection {
                         return Err(TorqueError::UpstreamUnreachable {
                             cluster: "upstream".to_string(),
                             endpoint: self.addr.to_string(),
-                            detail: "Connection closed by upstream peer before response".to_string(),
+                            detail: "Connection closed by upstream peer before response"
+                                .to_string(),
                         });
                     }
                     break;

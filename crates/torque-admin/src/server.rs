@@ -1,8 +1,8 @@
 //! Administrative HTTP server for health probes, Prometheus metrics, and live configuration control.
 
+use bytes::Bytes;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use bytes::Bytes;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::watch;
@@ -32,12 +32,8 @@ impl AdminServer {
         metrics: Arc<MetricsRegistry>,
         config_manager: Option<Arc<ConfigManager>>,
     ) -> Result<Self> {
-        let listener = TcpListener::bind(addr)
-            .await
-            .map_err(TorqueError::io)?;
-        let local_addr = listener
-            .local_addr()
-            .map_err(TorqueError::io)?;
+        let listener = TcpListener::bind(addr).await.map_err(TorqueError::io)?;
+        let local_addr = listener.local_addr().map_err(TorqueError::io)?;
 
         info!(addr = %local_addr, "Torque admin server bound successfully");
 
@@ -72,10 +68,8 @@ impl AdminServer {
             (Method::Get, "/metrics") => {
                 let prom_text = self.metrics.export_prometheus();
                 let mut resp = Response::ok(Bytes::from(prom_text));
-                resp.headers.insert(
-                    "content-type",
-                    "text/plain; version=0.0.4; charset=utf-8",
-                );
+                resp.headers
+                    .insert("content-type", "text/plain; version=0.0.4; charset=utf-8");
                 resp
             }
             (Method::Get, "/stats") => {
@@ -122,10 +116,8 @@ impl AdminServer {
                     Err(e) => {
                         error!(error = %e, "Administrative configuration reload failed");
                         let mut resp = Response::new(500);
-                        resp.body = Bytes::from(format!(
-                            "{{\"status\":\"failed\",\"error\":\"{}\"}}\n",
-                            e
-                        ));
+                        resp.body =
+                            Bytes::from(format!("{{\"status\":\"failed\",\"error\":\"{}\"}}\n", e));
                         resp.headers.insert("content-type", "application/json");
                         resp
                     }
@@ -141,7 +133,8 @@ impl AdminServer {
             },
             (Method::Get, "/dashboard") => {
                 let mut resp = Response::ok(Bytes::from_static(DASHBOARD_HTML.as_bytes()));
-                resp.headers.insert("content-type", "text/html; charset=utf-8");
+                resp.headers
+                    .insert("content-type", "text/html; charset=utf-8");
                 resp
             }
             _ => {
@@ -210,14 +203,8 @@ impl AdminServer {
                     let mut out = Vec::with_capacity(1024);
                     Http1Encoder::encode_response(&resp, &mut out);
 
-                    stream
-                        .write_all(&out)
-                        .await
-                        .map_err(TorqueError::io)?;
-                    stream
-                        .flush()
-                        .await
-                        .map_err(TorqueError::io)?;
+                    stream.write_all(&out).await.map_err(TorqueError::io)?;
+                    stream.flush().await.map_err(TorqueError::io)?;
                     return Ok(());
                 }
                 ParseResult::Incomplete => {

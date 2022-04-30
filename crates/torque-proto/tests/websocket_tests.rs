@@ -17,7 +17,9 @@ fn test_ws_unmasked_text_frame_roundtrip() {
     let mut buf = Vec::new();
     frame.encode(&mut buf);
 
-    let (parsed, consumed) = WsFrame::parse(&buf).expect("parse ws failed").expect("complete frame");
+    let (parsed, consumed) = WsFrame::parse(&buf)
+        .expect("parse ws failed")
+        .expect("complete frame");
     assert_eq!(consumed, buf.len());
     assert!(parsed.fin);
     assert_eq!(parsed.opcode, Opcode::Text);
@@ -33,7 +35,9 @@ fn test_ws_masked_binary_frame_roundtrip() {
     let mut buf = Vec::new();
     frame.encode(&mut buf);
 
-    let (parsed, consumed) = WsFrame::parse(&buf).expect("parse ws masked failed").expect("complete frame");
+    let (parsed, consumed) = WsFrame::parse(&buf)
+        .expect("parse ws masked failed")
+        .expect("complete frame");
     assert_eq!(consumed, buf.len());
     assert_eq!(parsed.opcode, Opcode::Binary);
     assert_eq!(parsed.payload.as_ref(), &data[..]);

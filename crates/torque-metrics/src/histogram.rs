@@ -8,8 +8,22 @@ const NUM_BUCKETS: usize = 16;
 /// Upper boundaries in milliseconds for each bucket:
 /// 0.5ms, 1ms, 2ms, 5ms, 10ms, 25ms, 50ms, 100ms, 250ms, 500ms, 1s, 2.5s, 5s, 10s, 30s, +inf
 pub static BUCKET_BOUNDS_MS: [f64; NUM_BUCKETS] = [
-    0.5, 1.0, 2.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 2500.0, 5000.0, 10000.0,
-    30000.0, f64::INFINITY,
+    0.5,
+    1.0,
+    2.0,
+    5.0,
+    10.0,
+    25.0,
+    50.0,
+    100.0,
+    250.0,
+    500.0,
+    1000.0,
+    2500.0,
+    5000.0,
+    10000.0,
+    30000.0,
+    f64::INFINITY,
 ];
 
 /// Lock-free latency histogram tracking response duration distribution.
@@ -57,11 +71,7 @@ impl HdrHistogram {
         for (i, &bound) in BUCKET_BOUNDS_MS.iter().enumerate() {
             accumulated += self.buckets[i].load(Ordering::Relaxed);
             if accumulated >= target {
-                return if bound.is_infinite() {
-                    30000.0
-                } else {
-                    bound
-                };
+                return if bound.is_infinite() { 30000.0 } else { bound };
             }
         }
 

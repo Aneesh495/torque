@@ -61,7 +61,10 @@ impl<T> TrieNode<T> {
                     };
                     current = &mut current.exact_children[idx];
                 }
-                Segment::Param { ref name, ref regex } => {
+                Segment::Param {
+                    ref name,
+                    ref regex,
+                } => {
                     let mut found_idx = None;
                     for (c_idx, child) in current.param_children.iter().enumerate() {
                         if let Some(Segment::Param {
@@ -153,7 +156,11 @@ impl<T> TrieNode<T> {
 
         // 2. Try parameterized children (constrained regex first, then unconstrained)
         for param_node in &self.param_children {
-            if let Some(Segment::Param { ref name, ref regex }) = param_node.segment {
+            if let Some(Segment::Param {
+                ref name,
+                ref regex,
+            }) = param_node.segment
+            {
                 let matches = match regex {
                     Some(re) => re.is_match(token),
                     None => true,

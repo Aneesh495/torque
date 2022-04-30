@@ -73,5 +73,10 @@ async fn test_connection_pool_reuse_and_forward() {
 
     // Latency must have been recorded
     assert!(endpoint.ewma_latency_ms.get() > 0.0);
-    assert_eq!(endpoint.consecutive_failures.load(std::sync::atomic::Ordering::Relaxed), 0);
+    assert_eq!(
+        endpoint
+            .consecutive_failures
+            .load(std::sync::atomic::Ordering::Relaxed),
+        0
+    );
 }

@@ -27,12 +27,10 @@ impl RetryBudget {
         let mut cur = self.tokens.load(Ordering::Relaxed);
         loop {
             let next = (cur + deposit).min(self.max_tokens);
-            match self.tokens.compare_exchange_weak(
-                cur,
-                next,
-                Ordering::Relaxed,
-                Ordering::Relaxed,
-            ) {
+            match self
+                .tokens
+                .compare_exchange_weak(cur, next, Ordering::Relaxed, Ordering::Relaxed)
+            {
                 Ok(_) => break,
                 Err(actual) => cur = actual,
             }

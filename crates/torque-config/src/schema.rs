@@ -166,28 +166,72 @@ pub struct PluginConfig {
 }
 
 // Serde defaults
-fn default_bind_addr() -> String { "0.0.0.0:8080".to_string() }
-fn default_admin_bind_addr() -> String { "127.0.0.1:9090".to_string() }
-fn default_metrics_path() -> String { "/metrics".to_string() }
-fn default_worker_threads() -> usize { num_cpus() }
-fn default_max_connections() -> usize { 50_000 }
-fn default_true() -> bool { true }
-fn default_buffer_size_kb() -> usize { 64 }
-fn default_lb_policy() -> String { "peak_ewma".to_string() }
-fn default_weight() -> u32 { 10 }
-fn default_health_path() -> String { "/healthz".to_string() }
-fn default_interval_ms() -> u64 { 2000 }
-fn default_timeout_ms() -> u64 { 500 }
-fn default_healthy_threshold() -> usize { 2 }
-fn default_unhealthy_threshold() -> usize { 3 }
-fn default_failure_rate() -> f64 { 0.50 }
-fn default_slow_call_rate() -> f64 { 0.80 }
-fn default_min_volume() -> usize { 20 }
-fn default_window_ms() -> u64 { 10_000 }
-fn default_recovery_ms() -> u64 { 5000 }
-fn default_half_open_probes() -> usize { 5 }
-fn default_rate_key_type() -> String { "ip".to_string() }
-fn default_cache_ttl() -> u64 { 60 }
+fn default_bind_addr() -> String {
+    "0.0.0.0:8080".to_string()
+}
+fn default_admin_bind_addr() -> String {
+    "127.0.0.1:9090".to_string()
+}
+fn default_metrics_path() -> String {
+    "/metrics".to_string()
+}
+fn default_worker_threads() -> usize {
+    num_cpus()
+}
+fn default_max_connections() -> usize {
+    50_000
+}
+fn default_true() -> bool {
+    true
+}
+fn default_buffer_size_kb() -> usize {
+    64
+}
+fn default_lb_policy() -> String {
+    "peak_ewma".to_string()
+}
+fn default_weight() -> u32 {
+    10
+}
+fn default_health_path() -> String {
+    "/healthz".to_string()
+}
+fn default_interval_ms() -> u64 {
+    2000
+}
+fn default_timeout_ms() -> u64 {
+    500
+}
+fn default_healthy_threshold() -> usize {
+    2
+}
+fn default_unhealthy_threshold() -> usize {
+    3
+}
+fn default_failure_rate() -> f64 {
+    0.50
+}
+fn default_slow_call_rate() -> f64 {
+    0.80
+}
+fn default_min_volume() -> usize {
+    20
+}
+fn default_window_ms() -> u64 {
+    10_000
+}
+fn default_recovery_ms() -> u64 {
+    5000
+}
+fn default_half_open_probes() -> usize {
+    5
+}
+fn default_rate_key_type() -> String {
+    "ip".to_string()
+}
+fn default_cache_ttl() -> u64 {
+    60
+}
 
 fn num_cpus() -> usize {
     std::thread::available_parallelism()

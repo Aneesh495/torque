@@ -3,11 +3,11 @@
 //! Pre-allocates slab arenas of uniform capacity to minimize dynamic heap allocations
 //! during continuous high-throughput network stream processing.
 
+use parking_lot::Mutex;
 use std::fmt;
 use std::ops::{Deref, DerefMut};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
-use parking_lot::Mutex;
 
 /// Default slab chunk size in bytes (16 KiB).
 pub const DEFAULT_CHUNK_SIZE: usize = 16 * 1024;
@@ -69,7 +69,7 @@ impl BytePool {
 
         let prev = self.inner.active_count.fetch_add(1, Ordering::Relaxed);
         let current = prev + 1;
-        
+
         // Track peak concurrent allocations
         let mut peak = self.inner.peak_active.load(Ordering::Relaxed);
         while current > peak {

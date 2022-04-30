@@ -68,12 +68,18 @@ impl TorqueServer {
     /// Internal builder constructing all subsystems and compiling initial routes.
     async fn build(config_manager: Arc<ConfigManager>, config: TorqueConfig) -> Result<Self> {
         let server_addr: SocketAddr = config.server.bind_addr.parse().map_err(|e| {
-            TorqueError::config("server.bind_addr", format!("Invalid proxy server bind address: {}", e))
+            TorqueError::config(
+                "server.bind_addr",
+                format!("Invalid proxy server bind address: {}", e),
+            )
         })?;
 
         let admin_addr: Option<SocketAddr> = if !config.admin.bind_addr.is_empty() {
             Some(config.admin.bind_addr.parse().map_err(|e| {
-                TorqueError::config("admin.bind_addr", format!("Invalid admin server bind address: {}", e))
+                TorqueError::config(
+                    "admin.bind_addr",
+                    format!("Invalid admin server bind address: {}", e),
+                )
             })?)
         } else {
             None

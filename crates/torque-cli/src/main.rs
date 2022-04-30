@@ -121,8 +121,8 @@ async fn main() -> Result<()> {
 
 async fn run_start(args: StartArgs) -> Result<()> {
     // Initialize logging subscriber
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new(&args.log_level));
+    let filter =
+        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(&args.log_level));
 
     tracing_subscriber::fmt()
         .with_env_filter(filter)
@@ -200,7 +200,10 @@ fn run_check(args: CheckArgs) -> Result<()> {
 }
 
 async fn run_reload(args: ReloadArgs) -> Result<()> {
-    println!("Sending hot reload signal to admin server at {}...", args.admin_addr);
+    println!(
+        "Sending hot reload signal to admin server at {}...",
+        args.admin_addr
+    );
 
     let mut stream = TcpStream::connect(&args.admin_addr)
         .await
@@ -240,7 +243,10 @@ async fn run_top(args: TopArgs) -> Result<()> {
         let mut stream = match TcpStream::connect(&args.admin_addr).await {
             Ok(s) => s,
             Err(e) => {
-                eprintln!("Error connecting to admin server at {}: {}", args.admin_addr, e);
+                eprintln!(
+                    "Error connecting to admin server at {}: {}",
+                    args.admin_addr, e
+                );
                 if args.once {
                     return Err(e.into());
                 }
@@ -265,7 +271,10 @@ async fn run_top(args: TopArgs) -> Result<()> {
                     print!("\x1B[2J\x1B[1;1H"); // Clear screen
                     println!("===============================================================================");
                     println!("  TORQUE REAL-TIME TELEMETRY MONITOR (/stats)");
-                    println!("  Admin Host: {} | Refresh: {}s", args.admin_addr, args.interval);
+                    println!(
+                        "  Admin Host: {} | Refresh: {}s",
+                        args.admin_addr, args.interval
+                    );
                     println!("===============================================================================");
                     let reqs = &v["requests"];
                     println!("  Traffic Summary:");
@@ -310,7 +319,10 @@ async fn run_bench(args: BenchArgs) -> Result<()> {
     println!("===============================================================================");
     println!("  TORQUE HTTP LOAD BENCHMARK");
     println!("  Target: http://{}{}", args.target, args.path);
-    println!("  Concurrency: {} workers | Requests: {}", args.concurrency, args.requests);
+    println!(
+        "  Concurrency: {} workers | Requests: {}",
+        args.concurrency, args.requests
+    );
     println!("===============================================================================");
 
     let requests_per_worker = args.requests / args.concurrency;

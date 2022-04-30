@@ -1,5 +1,7 @@
 use bytes::Bytes;
-use torque_proto::http2::{FlowControl, FrameHeader, FramePayload, FrameType, Http2Frame, Http2Stream, StreamState};
+use torque_proto::http2::{
+    FlowControl, FrameHeader, FramePayload, FrameType, Http2Frame, Http2Stream, StreamState,
+};
 
 #[test]
 fn test_frame_header_encode_decode() {
@@ -30,7 +32,9 @@ fn test_data_frame_roundtrip() {
     let mut buf = Vec::new();
     frame.encode(&mut buf);
 
-    let (parsed_frame, consumed) = Http2Frame::parse(&buf).expect("parse failed").expect("complete frame");
+    let (parsed_frame, consumed) = Http2Frame::parse(&buf)
+        .expect("parse failed")
+        .expect("complete frame");
     assert_eq!(consumed, buf.len());
     assert_eq!(parsed_frame.header.stream_id, 3);
     assert_eq!(parsed_frame.header.frame_type, FrameType::Data);
@@ -52,9 +56,14 @@ fn test_settings_frame_roundtrip() {
     let mut buf = Vec::new();
     frame.encode(&mut buf);
 
-    let (parsed_frame, _) = Http2Frame::parse(&buf).expect("parse settings failed").unwrap();
+    let (parsed_frame, _) = Http2Frame::parse(&buf)
+        .expect("parse settings failed")
+        .unwrap();
     match parsed_frame.payload {
-        FramePayload::Settings { ack, settings: parsed_settings } => {
+        FramePayload::Settings {
+            ack,
+            settings: parsed_settings,
+        } => {
             assert!(!ack);
             assert_eq!(parsed_settings, settings);
         }

@@ -28,7 +28,10 @@ pub fn validate_config(config: &TorqueConfig) -> Result<()> {
     let mut cluster_names = HashSet::new();
     for c in &config.clusters {
         if c.name.trim().is_empty() {
-            return Err(TorqueError::config("clusters", "Cluster name cannot be empty"));
+            return Err(TorqueError::config(
+                "clusters",
+                "Cluster name cannot be empty",
+            ));
         }
         if !cluster_names.insert(&c.name) {
             return Err(TorqueError::config(
@@ -48,7 +51,10 @@ pub fn validate_config(config: &TorqueConfig) -> Result<()> {
             if ep.addr.parse::<SocketAddr>().is_err() {
                 return Err(TorqueError::config(
                     "clusters",
-                    format!("Invalid endpoint socket address in cluster '{}': {}", c.name, ep.addr),
+                    format!(
+                        "Invalid endpoint socket address in cluster '{}': {}",
+                        c.name, ep.addr
+                    ),
                 ));
             }
         }

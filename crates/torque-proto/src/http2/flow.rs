@@ -44,7 +44,9 @@ impl FlowControl {
         let inc = increment as i64;
         let new_size = (self.window_size as i64) + inc;
         if new_size > (MAX_WINDOW_SIZE as i64) {
-            return Err(TorqueError::protocol("Flow control window exceeded maximum"));
+            return Err(TorqueError::protocol(
+                "Flow control window exceeded maximum",
+            ));
         }
         self.window_size = new_size as i32;
         Ok(())

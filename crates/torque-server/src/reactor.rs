@@ -117,7 +117,10 @@ impl TcpReactor {
         let mut out_buf = Vec::with_capacity(buffer_size);
 
         loop {
-            let n = stream.read_buf(&mut read_buf).await.map_err(TorqueError::io)?;
+            let n = stream
+                .read_buf(&mut read_buf)
+                .await
+                .map_err(TorqueError::io)?;
             if n == 0 {
                 return Ok(());
             }

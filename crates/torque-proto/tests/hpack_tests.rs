@@ -23,7 +23,10 @@ fn test_dynamic_table_eviction() {
     assert_eq!(table.len(), 2);
 
     // Insert large header that forces eviction
-    table.insert("huge-header-name".to_string(), "very-long-header-value-overflowing-buffer".to_string());
+    table.insert(
+        "huge-header-name".to_string(),
+        "very-long-header-value-overflowing-buffer".to_string(),
+    );
     assert!(table.len() <= 2);
 }
 

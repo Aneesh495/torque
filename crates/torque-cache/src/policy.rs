@@ -65,7 +65,10 @@ pub fn is_request_cacheable(req: &Request) -> bool {
 /// Check if an upstream response is eligible for cache storage.
 pub fn is_response_cacheable(resp: &Response) -> bool {
     // Status codes cacheable by default
-    let status_cacheable = matches!(resp.status, 200 | 203 | 204 | 206 | 300 | 301 | 308 | 404 | 410);
+    let status_cacheable = matches!(
+        resp.status,
+        200 | 203 | 204 | 206 | 300 | 301 | 308 | 404 | 410
+    );
     if !status_cacheable {
         return false;
     }

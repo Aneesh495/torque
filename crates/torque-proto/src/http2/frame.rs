@@ -190,7 +190,12 @@ impl Http2Frame {
     }
 
     /// Construct a HEADERS frame.
-    pub fn headers(stream_id: u32, header_block: Bytes, end_stream: bool, end_headers: bool) -> Self {
+    pub fn headers(
+        stream_id: u32,
+        header_block: Bytes,
+        end_stream: bool,
+        end_headers: bool,
+    ) -> Self {
         let mut flags = 0;
         if end_stream {
             flags |= 0x1;
@@ -339,7 +344,9 @@ impl Http2Frame {
             }
             FrameType::Ping => {
                 if payload_bytes.len() != 8 {
-                    return Err(TorqueError::protocol("Ping payload must be exactly 8 bytes"));
+                    return Err(TorqueError::protocol(
+                        "Ping payload must be exactly 8 bytes",
+                    ));
                 }
                 let mut opaque_data = [0u8; 8];
                 opaque_data.copy_from_slice(payload_bytes);

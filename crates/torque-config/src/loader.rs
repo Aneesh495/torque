@@ -29,15 +29,12 @@ impl ConfigFormat {
 /// Parse configuration from a raw string slice according to format.
 pub fn load_from_str(content: &str, format: ConfigFormat) -> Result<TorqueConfig> {
     let config: TorqueConfig = match format {
-        ConfigFormat::Yaml => serde_yaml::from_str(content).map_err(|e| {
-            TorqueError::config("yaml_parser", format!("YAML parse error: {}", e))
-        })?,
-        ConfigFormat::Json => serde_json::from_str(content).map_err(|e| {
-            TorqueError::config("json_parser", format!("JSON parse error: {}", e))
-        })?,
-        ConfigFormat::Toml => toml::from_str(content).map_err(|e| {
-            TorqueError::config("toml_parser", format!("TOML parse error: {}", e))
-        })?,
+        ConfigFormat::Yaml => serde_yaml::from_str(content)
+            .map_err(|e| TorqueError::config("yaml_parser", format!("YAML parse error: {}", e)))?,
+        ConfigFormat::Json => serde_json::from_str(content)
+            .map_err(|e| TorqueError::config("json_parser", format!("JSON parse error: {}", e)))?,
+        ConfigFormat::Toml => toml::from_str(content)
+            .map_err(|e| TorqueError::config("toml_parser", format!("TOML parse error: {}", e)))?,
     };
 
     validate_config(&config)?;

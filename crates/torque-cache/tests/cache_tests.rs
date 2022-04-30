@@ -55,7 +55,12 @@ fn test_arc_cache_self_tuning_adaptation() {
     assert_eq!(arc.len(), 4);
 
     // Tag invalidation
-    arc.put("tagged_key".to_string(), "val".to_string(), 999999999999, vec!["user_42".to_string()]);
+    arc.put(
+        "tagged_key".to_string(),
+        "val".to_string(),
+        999999999999,
+        vec!["user_42".to_string()],
+    );
     assert_eq!(arc.invalidate_tag("user_42"), 1);
     assert!(arc.get("tagged_key").is_none());
 }

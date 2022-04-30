@@ -114,8 +114,9 @@ impl WsFrame {
         let fin = (byte0 & 0x80) != 0;
         let rsv = (byte0 >> 4) & 0x07;
         let opcode_raw = byte0 & 0x0F;
-        let opcode = Opcode::from_u8(opcode_raw)
-            .ok_or_else(|| TorqueError::WebSocket { detail: format!("Invalid opcode: 0x{:x}", opcode_raw) })?;
+        let opcode = Opcode::from_u8(opcode_raw).ok_or_else(|| TorqueError::WebSocket {
+            detail: format!("Invalid opcode: 0x{:x}", opcode_raw),
+        })?;
 
         let byte1 = src[1];
         let is_masked = (byte1 & 0x80) != 0;

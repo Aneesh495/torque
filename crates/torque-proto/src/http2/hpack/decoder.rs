@@ -140,5 +140,6 @@ pub fn decode_string(src: &[u8], cursor: &mut usize) -> Result<String> {
         raw.to_vec()
     };
 
-    String::from_utf8(bytes).map_err(|e| TorqueError::protocol_with_source("Invalid header string UTF-8", e))
+    String::from_utf8(bytes)
+        .map_err(|e| TorqueError::protocol_with_source("Invalid header string UTF-8", e))
 }

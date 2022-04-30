@@ -51,12 +51,21 @@ impl BenchResult {
         println!("  TORQUE LOAD BENCHMARK EXECUTION REPORT");
         println!("===============================================================================");
         println!("  Timing & Throughput:");
-        println!("    Test Duration:       {:.3} s", self.elapsed.as_secs_f64());
+        println!(
+            "    Test Duration:       {:.3} s",
+            self.elapsed.as_secs_f64()
+        );
         println!("    Total Transactions:  {}", self.total_requests);
         println!("    Completed Success:   {}", self.successful_requests);
         println!("    Failed / Errors:     {}", self.failed_requests);
-        println!("    Mean Throughput:     {:.1} req/sec", self.requests_per_sec);
-        println!("    Network Bandwidth:   {:.2} MB/sec", self.throughput_mb_sec);
+        println!(
+            "    Mean Throughput:     {:.1} req/sec",
+            self.requests_per_sec
+        );
+        println!(
+            "    Network Bandwidth:   {:.2} MB/sec",
+            self.throughput_mb_sec
+        );
         println!();
         println!("  Status Code Distribution:");
         println!("    2xx (Success):       {}", self.status_2xx);
@@ -79,10 +88,16 @@ impl BenchResult {
         csv.push_str("metric,value\n");
         csv.push_str(&format!("duration_sec,{:.3}\n", self.elapsed.as_secs_f64()));
         csv.push_str(&format!("total_requests,{}\n", self.total_requests));
-        csv.push_str(&format!("successful_requests,{}\n", self.successful_requests));
+        csv.push_str(&format!(
+            "successful_requests,{}\n",
+            self.successful_requests
+        ));
         csv.push_str(&format!("failed_requests,{}\n", self.failed_requests));
         csv.push_str(&format!("requests_per_sec,{:.1}\n", self.requests_per_sec));
-        csv.push_str(&format!("throughput_mb_sec,{:.2}\n", self.throughput_mb_sec));
+        csv.push_str(&format!(
+            "throughput_mb_sec,{:.2}\n",
+            self.throughput_mb_sec
+        ));
         csv.push_str(&format!("latency_mean_ms,{:.2}\n", self.latency_mean_ms));
         csv.push_str(&format!("latency_p50_ms,{:.2}\n", self.latency_p50_ms));
         csv.push_str(&format!("latency_p90_ms,{:.2}\n", self.latency_p90_ms));
@@ -200,7 +215,8 @@ impl BenchEngine {
                                 match parse_res {
                                     ParseResult::Complete(resp, consumed) => {
                                         let _ = read_buf.split_to(consumed);
-                                        let elapsed_ms = call_start.elapsed().as_secs_f64() * 1000.0;
+                                        let elapsed_ms =
+                                            call_start.elapsed().as_secs_f64() * 1000.0;
                                         h.lock().record(elapsed_ms);
 
                                         total.fetch_add(1, Ordering::Relaxed);

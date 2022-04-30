@@ -213,7 +213,9 @@ impl<T> SpscProducer<T> {
         unsafe {
             (*self.inner.buffer[idx].get()).write(value);
         }
-        self.inner.head.store(head.wrapping_add(1), Ordering::Release);
+        self.inner
+            .head
+            .store(head.wrapping_add(1), Ordering::Release);
         Ok(())
     }
 }
@@ -230,7 +232,9 @@ impl<T> SpscConsumer<T> {
 
         let idx = tail & self.inner.mask;
         let value = unsafe { (*self.inner.buffer[idx].get()).assume_init_read() };
-        self.inner.tail.store(tail.wrapping_add(1), Ordering::Release);
+        self.inner
+            .tail
+            .store(tail.wrapping_add(1), Ordering::Release);
         Some(value)
     }
 }

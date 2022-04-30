@@ -51,17 +51,28 @@ impl Filter for CorsFilter {
         FilterStage::PreRouting
     }
 
-    async fn on_request(&self, req: &mut Request, _ctx: &mut FilterContext) -> Result<FilterAction> {
+    async fn on_request(
+        &self,
+        req: &mut Request,
+        _ctx: &mut FilterContext,
+    ) -> Result<FilterAction> {
         // Intercept preflight OPTIONS request
         if req.method == Method::Options && req.headers.contains_key("origin") {
             let mut resp = Response::new(204);
             resp.reason = "No Content".to_string();
-            resp.headers.insert("access-control-allow-origin", &self.config.allow_origin);
-            resp.headers.insert("access-control-allow-methods", &self.config.allow_methods);
-            resp.headers.insert("access-control-allow-headers", &self.config.allow_headers);
-            resp.headers.insert("access-control-max-age", self.config.max_age_secs.to_string());
+            resp.headers
+                .insert("access-control-allow-origin", &self.config.allow_origin);
+            resp.headers
+                .insert("access-control-allow-methods", &self.config.allow_methods);
+            resp.headers
+                .insert("access-control-allow-headers", &self.config.allow_headers);
+            resp.headers.insert(
+                "access-control-max-age",
+                self.config.max_age_secs.to_string(),
+            );
             if self.config.allow_credentials {
-                resp.headers.insert("access-control-allow-credentials", "true");
+                resp.headers
+                    .insert("access-control-allow-credentials", "true");
             }
             return Ok(FilterAction::Respond(resp));
         }
@@ -69,11 +80,18 @@ impl Filter for CorsFilter {
         Ok(FilterAction::Continue)
     }
 
-    async fn on_response(&self, resp: &mut Response, _ctx: &mut FilterContext) -> Result<FilterAction> {
-        resp.headers.insert("access-control-allow-origin", &self.config.allow_origin);
-        resp.headers.insert("access-control-expose-headers", &self.config.expose_headers);
+    async fn on_response(
+        &self,
+        resp: &mut Response,
+        _ctx: &mut FilterContext,
+    ) -> Result<FilterAction> {
+        resp.headers
+            .insert("access-control-allow-origin", &self.config.allow_origin);
+        resp.headers
+            .insert("access-control-expose-headers", &self.config.expose_headers);
         if self.config.allow_credentials {
-            resp.headers.insert("access-control-allow-credentials", "true");
+            resp.headers
+                .insert("access-control-allow-credentials", "true");
         }
         Ok(FilterAction::Continue)
     }

@@ -7,12 +7,16 @@ pub mod http1;
 pub mod http2;
 pub mod websocket;
 
-pub use http1::{HeaderMap, Http1Encoder, Http1Parser, Method, ParseResult, Request, Response, Version};
+pub use http1::{
+    HeaderMap, Http1Encoder, Http1Parser, Method, ParseResult, Request, Response, Version,
+};
 pub use http2::{
     DynamicTable, FlowControl, FrameHeader, FramePayload, FrameType, HeaderField, HeaderTable,
     HpackDecoder, HpackEncoder, Http2Frame, Http2Stream, StreamState,
 };
-pub use websocket::{compute_accept_key, create_upgrade_response, is_websocket_upgrade, Opcode, WsFrame};
+pub use websocket::{
+    compute_accept_key, create_upgrade_response, is_websocket_upgrade, Opcode, WsFrame,
+};
 
 /// Common protocol prelude.
 pub mod prelude {

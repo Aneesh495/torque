@@ -95,7 +95,8 @@ impl Filter for JwtAuthFilter {
             Some(h) => h,
             None => {
                 let mut resp = Response::new(401);
-                resp.body = bytes::Bytes::from_static(b"{\"error\":\"Missing authorization header\"}");
+                resp.body =
+                    bytes::Bytes::from_static(b"{\"error\":\"Missing authorization header\"}");
                 resp.headers.insert("content-type", "application/json");
                 return Ok(FilterAction::Respond(resp));
             }
@@ -115,7 +116,8 @@ impl Filter for JwtAuthFilter {
             }
             None => {
                 let mut resp = Response::new(401);
-                resp.body = bytes::Bytes::from_static(b"{\"error\":\"Invalid or expired JWT token\"}");
+                resp.body =
+                    bytes::Bytes::from_static(b"{\"error\":\"Invalid or expired JWT token\"}");
                 resp.headers.insert("content-type", "application/json");
                 Ok(FilterAction::Respond(resp))
             }

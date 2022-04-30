@@ -14,8 +14,8 @@ pub use buffer::{BytePool, PooledBuf, SegmentedBuf, DEFAULT_CHUNK_SIZE};
 pub use error::{ErrorCode, Result, TorqueError};
 pub use ring::{spsc_channel, RingBuffer, SpscConsumer, SpscProducer};
 pub use time::{
-    fast_now_millis, fast_now_nanos, init_clock, update_cached_time, FastInstant,
-    unix_timestamp_millis, unix_timestamp_secs,
+    fast_now_millis, fast_now_nanos, init_clock, unix_timestamp_millis, unix_timestamp_secs,
+    update_cached_time, FastInstant,
 };
 
 /// Prelude re-exporting common core abstractions.

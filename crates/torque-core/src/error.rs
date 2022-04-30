@@ -127,10 +127,7 @@ pub enum TorqueError {
 
     /// Upstream response timed out.
     #[error("[{code}] Upstream request timed out after {timeout_ms}ms ({cluster})", code = ErrorCode::UpstreamTimeout)]
-    UpstreamTimeout {
-        cluster: String,
-        timeout_ms: u64,
-    },
+    UpstreamTimeout { cluster: String, timeout_ms: u64 },
 
     /// Upstream connection pool is at capacity.
     #[error("[{code}] Upstream connection pool exhausted for {cluster}", code = ErrorCode::PoolExhausted)]
@@ -142,10 +139,7 @@ pub enum TorqueError {
 
     /// Rate limit bucket exhausted.
     #[error("[{code}] Rate limit exceeded for key: {key} (retry after {retry_after_ms}ms)", code = ErrorCode::RateLimitExceeded)]
-    RateLimitExceeded {
-        key: String,
-        retry_after_ms: u64,
-    },
+    RateLimitExceeded { key: String, retry_after_ms: u64 },
 
     /// Active concurrency threshold exceeded, request shed.
     #[error("[{code}] Concurrency limit reached ({current}/{max}) for cluster {cluster}", code = ErrorCode::ConcurrencyLimitReached)]
@@ -161,10 +155,7 @@ pub enum TorqueError {
 
     /// Configuration parsing, validation, or schema failure.
     #[error("[{code}] Configuration error in {section}: {detail}", code = ErrorCode::ConfigurationError)]
-    Config {
-        section: String,
-        detail: String,
-    },
+    Config { section: String, detail: String },
 
     /// Authentication, JWT, or signature verification failure.
     #[error("[{code}] Authentication error: {detail}", code = ErrorCode::AuthenticationFailed)]
@@ -213,16 +204,12 @@ impl TorqueError {
 
     /// Construct a new HPACK error with message detail.
     pub fn hpack(msg: impl Into<String>) -> Self {
-        TorqueError::Hpack {
-            detail: msg.into(),
-        }
+        TorqueError::Hpack { detail: msg.into() }
     }
 
     /// Construct a new WebSocket error with message detail.
     pub fn websocket(msg: impl Into<String>) -> Self {
-        TorqueError::WebSocket {
-            detail: msg.into(),
-        }
+        TorqueError::WebSocket { detail: msg.into() }
     }
 
     /// Construct a new protocol error wrapping an underlying error source.

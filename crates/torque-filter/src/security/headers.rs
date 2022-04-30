@@ -20,18 +20,21 @@ impl Filter for SecurityHeadersFilter {
         FilterStage::PostUpstream
     }
 
-    async fn on_response(&self, resp: &mut Response, _ctx: &mut FilterContext) -> Result<FilterAction> {
+    async fn on_response(
+        &self,
+        resp: &mut Response,
+        _ctx: &mut FilterContext,
+    ) -> Result<FilterAction> {
         resp.headers.insert(
             "strict-transport-security",
             "max-age=31536000; includeSubDomains",
         );
         resp.headers.insert("x-content-type-options", "nosniff");
         resp.headers.insert("x-frame-options", "DENY");
-        resp.headers.insert(
-            "referrer-policy",
-            "strict-origin-when-cross-origin",
-        );
-        resp.headers.insert("content-security-policy", "default-src 'self'");
+        resp.headers
+            .insert("referrer-policy", "strict-origin-when-cross-origin");
+        resp.headers
+            .insert("content-security-policy", "default-src 'self'");
         Ok(FilterAction::Continue)
     }
 }

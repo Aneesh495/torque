@@ -58,12 +58,20 @@ pub trait Filter: Send + Sync {
     fn stage(&self) -> FilterStage;
 
     /// Intercept and mutate an incoming request.
-    async fn on_request(&self, _req: &mut Request, _ctx: &mut FilterContext) -> Result<FilterAction> {
+    async fn on_request(
+        &self,
+        _req: &mut Request,
+        _ctx: &mut FilterContext,
+    ) -> Result<FilterAction> {
         Ok(FilterAction::Continue)
     }
 
     /// Intercept and mutate an outgoing response.
-    async fn on_response(&self, _resp: &mut Response, _ctx: &mut FilterContext) -> Result<FilterAction> {
+    async fn on_response(
+        &self,
+        _resp: &mut Response,
+        _ctx: &mut FilterContext,
+    ) -> Result<FilterAction> {
         Ok(FilterAction::Continue)
     }
 }

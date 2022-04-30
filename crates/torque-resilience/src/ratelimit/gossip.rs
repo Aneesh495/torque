@@ -1,8 +1,8 @@
 //! Lightweight gossip synchronization protocol for distributed rate coordinate aggregation.
 
+use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
-use parking_lot::RwLock;
 
 /// Compact binary gossip frame representing local token consumption deltas.
 #[derive(Debug, Clone, PartialEq, Eq)]

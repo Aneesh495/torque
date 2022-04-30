@@ -38,7 +38,11 @@ impl Filter for CompressionFilter {
         FilterStage::PostUpstream
     }
 
-    async fn on_response(&self, resp: &mut Response, ctx: &mut FilterContext) -> Result<FilterAction> {
+    async fn on_response(
+        &self,
+        resp: &mut Response,
+        ctx: &mut FilterContext,
+    ) -> Result<FilterAction> {
         if resp.body.len() < self.min_length {
             return Ok(FilterAction::Continue);
         }
@@ -57,7 +61,8 @@ impl Filter for CompressionFilter {
                     if compressed.len() < resp.body.len() {
                         resp.body = Bytes::from(compressed);
                         resp.headers.insert("content-encoding", "gzip");
-                        resp.headers.insert("content-length", resp.body.len().to_string());
+                        resp.headers
+                            .insert("content-length", resp.body.len().to_string());
                     }
                 }
             }
@@ -68,7 +73,8 @@ impl Filter for CompressionFilter {
                     if compressed.len() < resp.body.len() {
                         resp.body = Bytes::from(compressed);
                         resp.headers.insert("content-encoding", "deflate");
-                        resp.headers.insert("content-length", resp.body.len().to_string());
+                        resp.headers
+                            .insert("content-length", resp.body.len().to_string());
                     }
                 }
             }

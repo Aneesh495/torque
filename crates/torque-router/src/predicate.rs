@@ -19,13 +19,9 @@ pub enum Predicate {
         regex: Option<Regex>,
     },
     /// Host header or SNI matches pattern (exact or `*.domain`).
-    Host {
-        pattern: String,
-    },
+    Host { pattern: String },
     /// Method matches specified list.
-    MethodIn {
-        methods: Vec<String>,
-    },
+    MethodIn { methods: Vec<String> },
 }
 
 impl Predicate {
@@ -58,24 +54,22 @@ impl Predicate {
     /// Evaluate if an incoming request satisfies this predicate.
     pub fn evaluate(&self, req: &Request) -> bool {
         match self {
-            Predicate::Header { name, exact, regex } => {
-                match req.headers.get(name) {
-                    Some(val) => {
-                        if let Some(ref exp) = exact {
-                            if exp != val {
-                                return false;
-                            }
+            Predicate::Header { name, exact, regex } => match req.headers.get(name) {
+                Some(val) => {
+                    if let Some(ref exp) = exact {
+                        if exp != val {
+                            return false;
                         }
-                        if let Some(ref re) = regex {
-                            if !re.is_match(val) {
-                                return false;
-                            }
-                        }
-                        true
                     }
-                    None => false,
+                    if let Some(ref re) = regex {
+                        if !re.is_match(val) {
+                            return false;
+                        }
+                    }
+                    true
                 }
-            }
+                None => false,
+            },
             Predicate::QueryParam { name, exact, regex } => {
                 // Parse query string from URI
                 if let Some(q_idx) = req.uri.find('?') {
@@ -114,7 +108,9 @@ impl Predicate {
             }
             Predicate::MethodIn { methods } => {
                 let m = req.method.as_str();
-                methods.iter().any(|allowed| allowed.eq_ignore_ascii_case(m))
+                methods
+                    .iter()
+                    .any(|allowed| allowed.eq_ignore_ascii_case(m))
             }
         }
     }

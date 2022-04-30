@@ -150,7 +150,8 @@ impl CircuitBreaker {
     fn trip_open(&self) {
         let mut lock = self.state.write();
         *lock = CircuitState::Open;
-        self.opened_at_millis.store(fast_now_millis(), Ordering::Relaxed);
+        self.opened_at_millis
+            .store(fast_now_millis(), Ordering::Relaxed);
         self.half_open_active_probes.store(0, Ordering::Relaxed);
     }
 

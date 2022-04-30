@@ -8,7 +8,9 @@ use torque_proto::http1::{Request, Response};
 
 use super::arc::AdaptiveReplacementCache;
 use super::key::generate_cache_key;
-use super::policy::{calculate_expiration, is_conditional_match, is_request_cacheable, is_response_cacheable};
+use super::policy::{
+    calculate_expiration, is_conditional_match, is_request_cacheable, is_response_cacheable,
+};
 
 /// Result of a cache lookup attempt.
 #[derive(Debug)]
@@ -60,7 +62,9 @@ impl HttpCacheEngine {
                 if is_conditional_match(req, &e.value) {
                     self.hits.fetch_add(1, Ordering::Relaxed);
                     let mut resp304 = Response::new(304);
-                    resp304.headers.insert("etag", e.value.headers.get("etag").unwrap_or(""));
+                    resp304
+                        .headers
+                        .insert("etag", e.value.headers.get("etag").unwrap_or(""));
                     return CacheLookupResult::ConditionalHit(resp304);
                 }
 
@@ -82,7 +86,13 @@ impl HttpCacheEngine {
     }
 
     /// Store an upstream response into the cache.
-    pub fn store(&self, req: &Request, resp: &Response, default_ttl_secs: u64, tags: Vec<String>) -> bool {
+    pub fn store(
+        &self,
+        req: &Request,
+        resp: &Response,
+        default_ttl_secs: u64,
+        tags: Vec<String>,
+    ) -> bool {
         if !is_response_cacheable(resp) {
             return false;
         }

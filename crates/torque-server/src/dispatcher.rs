@@ -92,7 +92,8 @@ impl RequestDispatcher {
             None => {
                 debug!(uri = %req.uri, "No route matched incoming request");
                 let mut resp = Response::new(404);
-                resp.body = Bytes::from_static(b"{\"error\":\"Not Found\",\"code\":\"TORQUE-E4004\"}\n");
+                resp.body =
+                    Bytes::from_static(b"{\"error\":\"Not Found\",\"code\":\"TORQUE-E4004\"}\n");
                 resp.headers.insert("content-type", "application/json");
                 return self.finalize_response(resp, start, &req);
             }
@@ -183,7 +184,8 @@ impl RequestDispatcher {
             None => {
                 error!(cluster = %route.cluster, "Target cluster not found");
                 let mut resp = Response::new(502);
-                resp.body = Bytes::from_static(b"{\"error\":\"Upstream cluster not configured\"}\n");
+                resp.body =
+                    Bytes::from_static(b"{\"error\":\"Upstream cluster not configured\"}\n");
                 resp.headers.insert("content-type", "application/json");
                 return self.finalize_response(resp, start, &req);
             }
@@ -217,7 +219,8 @@ impl RequestDispatcher {
                 Err(e) => {
                     error!(cluster = %route.cluster, error = %e, "No healthy endpoint available");
                     let mut resp = Response::new(503);
-                    resp.body = Bytes::from_static(b"{\"error\":\"No healthy endpoints available\"}\n");
+                    resp.body =
+                        Bytes::from_static(b"{\"error\":\"No healthy endpoints available\"}\n");
                     resp.headers.insert("content-type", "application/json");
                     return self.finalize_response(resp, start, &req);
                 }
@@ -267,7 +270,8 @@ impl RequestDispatcher {
                         Err(e) => {
                             error!(error = %e, "PostUpstream filter execution failed");
                             let mut resp = Response::new(500);
-                            resp.body = Bytes::from_static(b"{\"error\":\"Internal filter error\"}\n");
+                            resp.body =
+                                Bytes::from_static(b"{\"error\":\"Internal filter error\"}\n");
                             return self.finalize_response(resp, start, &req);
                         }
                     }
@@ -308,14 +312,14 @@ impl RequestDispatcher {
     /// Record telemetry metrics and finalize outgoing HTTP response.
     fn finalize_response(&self, mut resp: Response, start: Instant, req: &Request) -> Response {
         let elapsed_ms = start.elapsed().as_secs_f64() * 1000.0;
-        self.metrics.record_request(
-            resp.status,
-            elapsed_ms,
-            resp.body.len(),
-            req.body.len(),
-        );
+        self.metrics
+            .record_request(resp.status, elapsed_ms, resp.body.len(), req.body.len());
 
-        if !resp.headers.iter().any(|(k, _)| k.eq_ignore_ascii_case("server")) {
+        if !resp
+            .headers
+            .iter()
+            .any(|(k, _)| k.eq_ignore_ascii_case("server"))
+        {
             resp.headers.insert("server", "Torque/0.1.0");
         }
 

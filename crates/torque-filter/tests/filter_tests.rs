@@ -36,7 +36,8 @@ async fn test_jwt_auth_filter_valid_token() {
 
     let filter = JwtAuthFilter::new(secret);
     let mut req = Request::new(Method::Get, "/api/v1/trades");
-    req.headers.insert("authorization", format!("Bearer {}", token));
+    req.headers
+        .insert("authorization", format!("Bearer {}", token));
 
     let mut ctx = FilterContext::new();
     let action = filter.on_request(&mut req, &mut ctx).await.unwrap();
@@ -54,7 +55,8 @@ async fn test_jwt_auth_filter_expired_token() {
 
     let filter = JwtAuthFilter::new(secret);
     let mut req = Request::new(Method::Get, "/api/v1/trades");
-    req.headers.insert("authorization", format!("Bearer {}", token));
+    req.headers
+        .insert("authorization", format!("Bearer {}", token));
 
     let mut ctx = FilterContext::new();
     let action = filter.on_request(&mut req, &mut ctx).await.unwrap();
@@ -72,7 +74,9 @@ async fn test_api_key_filter() {
     let filter = ApiKeyFilter::new(vec!["valid-secret-key-9988"]);
 
     let mut req_valid = Request::new(Method::Get, "/api/v1/status");
-    req_valid.headers.insert("x-api-key", "valid-secret-key-9988");
+    req_valid
+        .headers
+        .insert("x-api-key", "valid-secret-key-9988");
     let mut ctx = FilterContext::new();
     assert_eq!(
         filter.on_request(&mut req_valid, &mut ctx).await.unwrap(),
@@ -131,7 +135,10 @@ async fn test_traceparent_propagation() {
         filter.on_request(&mut req, &mut ctx).await.unwrap(),
         FilterAction::Continue
     );
-    let generated_tp = req.headers.get("traceparent").expect("traceparent should be set");
+    let generated_tp = req
+        .headers
+        .get("traceparent")
+        .expect("traceparent should be set");
     assert!(generated_tp.starts_with("00-"));
 
     let mut resp = Response::new(200);
@@ -151,12 +158,18 @@ async fn test_filter_chain_execution() {
     let mut req = Request::new(Method::Get, "/healthz");
     let mut ctx = FilterContext::new();
 
-    let action = chain.execute_request(FilterStage::PreRouting, &mut req, &mut ctx).await.unwrap();
+    let action = chain
+        .execute_request(FilterStage::PreRouting, &mut req, &mut ctx)
+        .await
+        .unwrap();
     assert_eq!(action, FilterAction::Continue);
     assert!(req.headers.contains_key("traceparent"));
 
     let mut resp = Response::new(200);
-    let action_resp = chain.execute_response(FilterStage::PostUpstream, &mut resp, &mut ctx).await.unwrap();
+    let action_resp = chain
+        .execute_response(FilterStage::PostUpstream, &mut resp, &mut ctx)
+        .await
+        .unwrap();
     assert_eq!(action_resp, FilterAction::Continue);
     assert!(resp.headers.contains_key("strict-transport-security"));
 }

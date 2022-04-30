@@ -38,14 +38,23 @@ impl MetricsRegistry {
     pub fn record_request(&self, status: u16, duration_ms: f64, sent: usize, recv: usize) {
         self.total_requests.fetch_add(1, Ordering::Relaxed);
         self.bytes_sent.fetch_add(sent as u64, Ordering::Relaxed);
-        self.bytes_received.fetch_add(recv as u64, Ordering::Relaxed);
+        self.bytes_received
+            .fetch_add(recv as u64, Ordering::Relaxed);
         self.latency_histogram.record(duration_ms);
 
         match status {
-            200..=299 => { self.status_2xx.fetch_add(1, Ordering::Relaxed); }
-            300..=399 => { self.status_3xx.fetch_add(1, Ordering::Relaxed); }
-            400..=499 => { self.status_4xx.fetch_add(1, Ordering::Relaxed); }
-            500..=599 => { self.status_5xx.fetch_add(1, Ordering::Relaxed); }
+            200..=299 => {
+                self.status_2xx.fetch_add(1, Ordering::Relaxed);
+            }
+            300..=399 => {
+                self.status_3xx.fetch_add(1, Ordering::Relaxed);
+            }
+            400..=499 => {
+                self.status_4xx.fetch_add(1, Ordering::Relaxed);
+            }
+            500..=599 => {
+                self.status_5xx.fetch_add(1, Ordering::Relaxed);
+            }
             _ => {}
         }
     }
@@ -67,26 +76,52 @@ impl MetricsRegistry {
         // torque_requests_total
         out.push_str("# HELP torque_requests_total Total number of HTTP requests processed\n");
         out.push_str("# TYPE torque_requests_total counter\n");
-        out.push_str(&format!("torque_requests_total {}\n\n", self.total_requests.load(Ordering::Relaxed)));
+        out.push_str(&format!(
+            "torque_requests_total {}\n\n",
+            self.total_requests.load(Ordering::Relaxed)
+        ));
 
         // torque_requests_by_status
         out.push_str("# HELP torque_requests_by_status HTTP requests grouped by response class\n");
         out.push_str("# TYPE torque_requests_by_status counter\n");
-        out.push_str(&format!("torque_requests_by_status{{class=\"2xx\"}} {}\n", self.status_2xx.load(Ordering::Relaxed)));
-        out.push_str(&format!("torque_requests_by_status{{class=\"3xx\"}} {}\n", self.status_3xx.load(Ordering::Relaxed)));
-        out.push_str(&format!("torque_requests_by_status{{class=\"4xx\"}} {}\n", self.status_4xx.load(Ordering::Relaxed)));
-        out.push_str(&format!("torque_requests_by_status{{class=\"5xx\"}} {}\n\n", self.status_5xx.load(Ordering::Relaxed)));
+        out.push_str(&format!(
+            "torque_requests_by_status{{class=\"2xx\"}} {}\n",
+            self.status_2xx.load(Ordering::Relaxed)
+        ));
+        out.push_str(&format!(
+            "torque_requests_by_status{{class=\"3xx\"}} {}\n",
+            self.status_3xx.load(Ordering::Relaxed)
+        ));
+        out.push_str(&format!(
+            "torque_requests_by_status{{class=\"4xx\"}} {}\n",
+            self.status_4xx.load(Ordering::Relaxed)
+        ));
+        out.push_str(&format!(
+            "torque_requests_by_status{{class=\"5xx\"}} {}\n\n",
+            self.status_5xx.load(Ordering::Relaxed)
+        ));
 
         // torque_active_connections
-        out.push_str("# HELP torque_active_connections Current number of active client TCP sockets\n");
+        out.push_str(
+            "# HELP torque_active_connections Current number of active client TCP sockets\n",
+        );
         out.push_str("# TYPE torque_active_connections gauge\n");
-        out.push_str(&format!("torque_active_connections {}\n\n", self.active_connections.load(Ordering::Relaxed)));
+        out.push_str(&format!(
+            "torque_active_connections {}\n\n",
+            self.active_connections.load(Ordering::Relaxed)
+        ));
 
         // torque_bytes
         out.push_str("# HELP torque_bytes_transmitted_total Total bytes sent and received\n");
         out.push_str("# TYPE torque_bytes_transmitted_total counter\n");
-        out.push_str(&format!("torque_bytes_transmitted_total{{direction=\"sent\"}} {}\n", self.bytes_sent.load(Ordering::Relaxed)));
-        out.push_str(&format!("torque_bytes_transmitted_total{{direction=\"received\"}} {}\n\n", self.bytes_received.load(Ordering::Relaxed)));
+        out.push_str(&format!(
+            "torque_bytes_transmitted_total{{direction=\"sent\"}} {}\n",
+            self.bytes_sent.load(Ordering::Relaxed)
+        ));
+        out.push_str(&format!(
+            "torque_bytes_transmitted_total{{direction=\"received\"}} {}\n\n",
+            self.bytes_received.load(Ordering::Relaxed)
+        ));
 
         // torque_request_duration_ms
         out.push_str("# HELP torque_request_duration_ms HTTP request execution latency histogram in milliseconds\n");
@@ -95,10 +130,20 @@ impl MetricsRegistry {
         let mut cumulative = 0;
         for (i, &bound) in BUCKET_BOUNDS_MS.iter().enumerate() {
             cumulative += counts[i];
-            let le_str = if bound.is_infinite() { "+Inf".to_string() } else { bound.to_string() };
-            out.push_str(&format!("torque_request_duration_ms_bucket{{le=\"{}\"}} {}\n", le_str, cumulative));
+            let le_str = if bound.is_infinite() {
+                "+Inf".to_string()
+            } else {
+                bound.to_string()
+            };
+            out.push_str(&format!(
+                "torque_request_duration_ms_bucket{{le=\"{}\"}} {}\n",
+                le_str, cumulative
+            ));
         }
-        out.push_str(&format!("torque_request_duration_ms_count {}\n\n", self.latency_histogram.count()));
+        out.push_str(&format!(
+            "torque_request_duration_ms_count {}\n\n",
+            self.latency_histogram.count()
+        ));
 
         out
     }

@@ -100,12 +100,10 @@ impl AtomicEwma {
         let mut current = self.value.load(Ordering::Relaxed);
         loop {
             let next = (self.alpha * sample) + ((1.0 - self.alpha) * current);
-            match self.value.compare_exchange(
-                current,
-                next,
-                Ordering::Relaxed,
-                Ordering::Relaxed,
-            ) {
+            match self
+                .value
+                .compare_exchange(current, next, Ordering::Relaxed, Ordering::Relaxed)
+            {
                 Ok(_) => return next,
                 Err(actual) => current = actual,
             }

@@ -23,7 +23,11 @@ fn test_exact_route_matching() {
 fn test_parameterized_route_matching() {
     let routes = vec![
         Route::new("user_detail", "/api/v1/users/:user_id", "user_service"),
-        Route::new("user_orders", "/api/v1/users/:user_id/orders/:order_id", "order_service"),
+        Route::new(
+            "user_orders",
+            "/api/v1/users/:user_id/orders/:order_id",
+            "order_service",
+        ),
     ];
 
     let table = RouteTable::compile(routes).expect("compile failed");
@@ -50,21 +54,27 @@ fn test_regex_constrained_route() {
     let table = RouteTable::compile(routes).expect("compile failed");
 
     let req_num = Request::new(Method::Get, "/items/12345");
-    let m_num = table.match_request(&req_num).expect("should match numeric route");
+    let m_num = table
+        .match_request(&req_num)
+        .expect("should match numeric route");
     assert_eq!(m_num.route.name, "numeric_id");
     assert_eq!(m_num.params.get("id"), Some(&"12345".to_string()));
 
     let req_str = Request::new(Method::Get, "/items/sku-xyz");
-    let m_str = table.match_request(&req_str).expect("should match string route");
+    let m_str = table
+        .match_request(&req_str)
+        .expect("should match string route");
     assert_eq!(m_str.route.name, "string_code");
     assert_eq!(m_str.params.get("code"), Some(&"sku-xyz".to_string()));
 }
 
 #[test]
 fn test_wildcard_route() {
-    let routes = vec![
-        Route::new("static_assets", "/assets/*filepath", "static_cluster"),
-    ];
+    let routes = vec![Route::new(
+        "static_assets",
+        "/assets/*filepath",
+        "static_cluster",
+    )];
 
     let table = RouteTable::compile(routes).expect("compile failed");
 
@@ -99,7 +109,9 @@ fn test_method_and_predicate_filtering() {
     // POST with matching header should succeed
     let mut req_post_valid = Request::new(Method::Post, "/api/v1/payments");
     req_post_valid.headers.insert("x-api-version", "2");
-    let m = table.match_request(&req_post_valid).expect("should match valid post");
+    let m = table
+        .match_request(&req_post_valid)
+        .expect("should match valid post");
     assert_eq!(m.route.name, "post_only");
 }
 

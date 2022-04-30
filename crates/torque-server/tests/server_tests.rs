@@ -94,10 +94,7 @@ async fn test_server_dispatch_and_security_headers() {
 
     assert_eq!(resp.status, 200);
     assert_eq!(upstream_counter.load(Ordering::Relaxed), 1);
-    assert_eq!(
-        resp.headers.get("x-content-type-options"),
-        Some("nosniff")
-    );
+    assert_eq!(resp.headers.get("x-content-type-options"), Some("nosniff"));
     assert_eq!(resp.headers.get("x-frame-options"), Some("DENY"));
     assert!(String::from_utf8_lossy(&resp.body).contains("Hello from mock upstream"));
 

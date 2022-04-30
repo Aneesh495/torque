@@ -101,12 +101,15 @@ impl HeaderMap {
 
     /// Insert a header name and value. Names are normalized to lowercase.
     pub fn insert(&mut self, key: impl AsRef<str>, value: impl Into<String>) {
-        self.headers.insert(key.as_ref().to_ascii_lowercase(), value.into());
+        self.headers
+            .insert(key.as_ref().to_ascii_lowercase(), value.into());
     }
 
     /// Retrieve a header value by case-insensitive key.
     pub fn get(&self, key: &str) -> Option<&str> {
-        self.headers.get(&key.to_ascii_lowercase()).map(|s| s.as_str())
+        self.headers
+            .get(&key.to_ascii_lowercase())
+            .map(|s| s.as_str())
     }
 
     /// Check if a header exists.

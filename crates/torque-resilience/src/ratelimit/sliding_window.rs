@@ -58,7 +58,10 @@ impl SlidingWindowLimiter {
             state.current_count += count;
             Ok(())
         } else {
-            let wait_ms = self.window_duration_ms.saturating_sub(time_into_current).max(1);
+            let wait_ms = self
+                .window_duration_ms
+                .saturating_sub(time_into_current)
+                .max(1);
             Err(wait_ms)
         }
     }

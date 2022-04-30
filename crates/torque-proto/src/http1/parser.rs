@@ -72,7 +72,9 @@ impl Http1Parser {
                 continue;
             }
             if let Some(colon_idx) = line.iter().position(|&b| b == b':') {
-                let name = String::from_utf8_lossy(&line[..colon_idx]).trim().to_string();
+                let name = String::from_utf8_lossy(&line[..colon_idx])
+                    .trim()
+                    .to_string();
                 let value = String::from_utf8_lossy(&line[colon_idx + 1..])
                     .trim()
                     .to_string();
@@ -170,7 +172,9 @@ impl Http1Parser {
                 continue;
             }
             if let Some(colon_idx) = line.iter().position(|&b| b == b':') {
-                let name = String::from_utf8_lossy(&line[..colon_idx]).trim().to_string();
+                let name = String::from_utf8_lossy(&line[..colon_idx])
+                    .trim()
+                    .to_string();
                 let value = String::from_utf8_lossy(&line[colon_idx + 1..])
                     .trim()
                     .to_string();
@@ -256,7 +260,7 @@ fn parse_chunked_body(src: &[u8]) -> Result<ParseResult<Bytes>> {
 
         let size_str = std::str::from_utf8(&remaining[..line_end])
             .map_err(|_| TorqueError::protocol("Invalid chunk header UTF-8"))?;
-        
+
         // Strip chunk extensions if present (e.g., "1a;ext=foo")
         let hex_size = size_str.split(';').next().unwrap().trim();
         let chunk_size = usize::from_str_radix(hex_size, 16)

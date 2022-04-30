@@ -9,10 +9,7 @@ pub enum Segment {
     /// Exact literal match (e.g., "users")
     Exact(String),
     /// Parameter capture with optional regex constraint (e.g., ":id" or ":id<\\d+>")
-    Param {
-        name: String,
-        regex: Option<Regex>,
-    },
+    Param { name: String, regex: Option<Regex> },
     /// Catch-all greedy wildcard (e.g., "*filepath")
     Wildcard(String),
 }

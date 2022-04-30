@@ -40,7 +40,11 @@ impl Filter for TraceparentFilter {
         Ok(FilterAction::Continue)
     }
 
-    async fn on_response(&self, resp: &mut Response, ctx: &mut FilterContext) -> Result<FilterAction> {
+    async fn on_response(
+        &self,
+        resp: &mut Response,
+        ctx: &mut FilterContext,
+    ) -> Result<FilterAction> {
         if let Some(tp) = ctx.get("traceparent") {
             resp.headers.insert("traceparent", tp);
         }
