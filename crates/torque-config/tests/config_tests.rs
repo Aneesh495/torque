@@ -47,7 +47,7 @@ fn test_validation_fails_on_unknown_cluster() {
     config.routes[0].cluster = "non_existent_cluster".to_string();
 
     let err = validate_config(&config).expect_err("should fail validation");
-    let err_msg = format!("{}", err);
+    let err_msg = format!("{err}");
     assert!(err_msg.contains("unknown upstream cluster"));
 }
 
@@ -59,7 +59,7 @@ fn test_validation_fails_on_duplicate_cluster() {
     config.clusters.push(duplicate);
 
     let err = validate_config(&config).expect_err("should fail on duplicate cluster");
-    let err_msg = format!("{}", err);
+    let err_msg = format!("{err}");
     assert!(err_msg.contains("Duplicate cluster name"));
 }
 

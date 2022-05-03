@@ -262,7 +262,7 @@ mod tests {
             key: "192.168.1.1".to_string(),
             retry_after_ms: 500,
         };
-        let formatted = format!("{}", err);
+        let formatted = format!("{err}");
         assert!(formatted.contains("TORQUE-E5002"));
         assert!(formatted.contains("192.168.1.1"));
         assert!(formatted.contains("500ms"));

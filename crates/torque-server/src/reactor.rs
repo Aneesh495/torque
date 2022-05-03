@@ -125,39 +125,32 @@ impl TcpReactor {
                 return Ok(());
             }
 
-            loop {
-                match Http1Parser::parse_request(&read_buf)? {
-                    ParseResult::Complete(req, consumed) => {
-                        let is_close = req
-                            .headers
-                            .get("connection")
-                            .map(|v| v.eq_ignore_ascii_case("close"))
-                            .unwrap_or(false);
+            while let ParseResult::Complete(req, consumed) = Http1Parser::parse_request(&read_buf)?
+            {
+                let is_close = req
+                    .headers
+                    .get("connection")
+                    .map(|v| v.eq_ignore_ascii_case("close"))
+                    .unwrap_or(false);
 
-                        // Advance read buffer past consumed bytes
-                        let _ = read_buf.split_to(consumed);
+                // Advance read buffer past consumed bytes
+                let _ = read_buf.split_to(consumed);
 
-                        // Dispatch request through complete pipeline
-                        let mut resp = dispatcher.dispatch(req, client_addr).await;
+                // Dispatch request through complete pipeline
+                let mut resp = dispatcher.dispatch(req, client_addr).await;
 
-                        if is_close {
-                            resp.headers.insert("connection", "close");
-                        }
+                if is_close {
+                    resp.headers.insert("connection", "close");
+                }
 
-                        // Serialize and write response
-                        out_buf.clear();
-                        Http1Encoder::encode_response(&resp, &mut out_buf);
-                        stream.write_all(&out_buf).await.map_err(TorqueError::io)?;
-                        stream.flush().await.map_err(TorqueError::io)?;
+                // Serialize and write response
+                out_buf.clear();
+                Http1Encoder::encode_response(&resp, &mut out_buf);
+                stream.write_all(&out_buf).await.map_err(TorqueError::io)?;
+                stream.flush().await.map_err(TorqueError::io)?;
 
-                        if is_close {
-                            return Ok(());
-                        }
-                    }
-                    ParseResult::Incomplete => {
-                        // Need more data from socket
-                        break;
-                    }
+                if is_close {
+                    return Ok(());
                 }
             }
         }

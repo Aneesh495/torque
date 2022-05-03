@@ -8,7 +8,7 @@ pub fn generate_cache_key(req: &Request, vary_headers: &[String]) -> String {
     let host = req.headers.get("host").unwrap_or("localhost");
     let uri = &req.uri;
 
-    let mut key = format!("{}|{}|{}", method, host, uri);
+    let mut key = format!("{method}|{host}|{uri}");
 
     if !vary_headers.is_empty() {
         key.push('|');

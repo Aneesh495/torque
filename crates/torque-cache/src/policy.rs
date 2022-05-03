@@ -31,12 +31,12 @@ impl CacheControlDirectives {
                 directives.public = true;
             } else if part == "private" {
                 directives.private = true;
-            } else if part.starts_with("max-age=") {
-                if let Ok(secs) = part[8..].parse::<u64>() {
+            } else if let Some(val) = part.strip_prefix("max-age=") {
+                if let Ok(secs) = val.parse::<u64>() {
                     directives.max_age_secs = Some(secs);
                 }
-            } else if part.starts_with("s-maxage=") {
-                if let Ok(secs) = part[9..].parse::<u64>() {
+            } else if let Some(val) = part.strip_prefix("s-maxage=") {
+                if let Ok(secs) = val.parse::<u64>() {
                     directives.s_maxage_secs = Some(secs);
                 }
             }

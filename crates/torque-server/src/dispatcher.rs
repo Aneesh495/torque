@@ -32,6 +32,7 @@ pub struct RequestDispatcher {
 
 impl RequestDispatcher {
     /// Construct a new request dispatcher.
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         route_table: Arc<AtomicRouteTable>,
         clusters: Arc<DashMap<String, Arc<ClusterBalancer>>>,
@@ -101,7 +102,7 @@ impl RequestDispatcher {
 
         // Populate route parameters into filter context
         for (param_name, param_val) in matched_params.iter() {
-            ctx.set(format!("param:{}", param_name), param_val);
+            ctx.set(format!("param:{param_name}"), param_val);
         }
         ctx.set("route_id", route.id.clone());
         ctx.set("cluster_name", route.cluster.clone());
@@ -136,7 +137,7 @@ impl RequestDispatcher {
             if let Err(e) = limiter_registry.check(limit_key) {
                 warn!(key = %limit_key, "Rate limit exceeded for route {}", route.id);
                 let mut resp = Response::new(429);
-                resp.body = Bytes::from(format!("{{\"error\":\"{}\"}}\n", e));
+                resp.body = Bytes::from(format!("{{\"error\":\"{e}\"}}\n"));
                 resp.headers.insert("content-type", "application/json");
                 resp.headers.insert("retry-after", "1");
                 return self.finalize_response(resp, start, &req);
@@ -195,7 +196,7 @@ impl RequestDispatcher {
             if let Err(e) = cb.allow_request() {
                 warn!(cluster = %route.cluster, "Circuit breaker tripped open; rejecting request");
                 let mut resp = Response::new(503);
-                resp.body = Bytes::from(format!("{{\"error\":\"{}\"}}\n", e));
+                resp.body = Bytes::from(format!("{{\"error\":\"{e}\"}}\n"));
                 resp.headers.insert("content-type", "application/json");
                 resp.headers.insert("x-torque-circuit", "OPEN");
                 return self.finalize_response(resp, start, &req);
@@ -291,7 +292,7 @@ impl RequestDispatcher {
                     );
 
                     if attempts <= max_retries {
-                        let delay = backoff.calculate(attempts as u32, prev_sleep);
+                        let delay = backoff.calculate(attempts, prev_sleep);
                         prev_sleep = delay;
                         tokio::time::sleep(delay).await;
                     }
@@ -302,8 +303,7 @@ impl RequestDispatcher {
         // Exhausted retries: synthesize 504 Gateway Timeout or 502 Bad Gateway
         let mut err_resp = Response::new(504);
         err_resp.body = Bytes::from(format!(
-            "{{\"error\":\"Upstream request timed out or failed after {} attempts: {}\"}}\n",
-            attempts, last_error_msg
+            "{{\"error\":\"Upstream request timed out or failed after {attempts} attempts: {last_error_msg}\"}}\n"
         ));
         err_resp.headers.insert("content-type", "application/json");
         self.finalize_response(err_resp, start, &req)

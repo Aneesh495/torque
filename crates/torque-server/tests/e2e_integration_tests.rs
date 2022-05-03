@@ -47,7 +47,7 @@ async fn spawn_dynamic_upstream(counter: Arc<AtomicUsize>, body_text: &'static s
 #[tokio::test]
 async fn test_e2e_zero_downtime_hot_reload() {
     let test_id = torque_core::time::fast_now_nanos();
-    let config_path = std::env::temp_dir().join(format!("torque_test_config_{}.yaml", test_id));
+    let config_path = std::env::temp_dir().join(format!("torque_test_config_{test_id}.yaml"));
 
     let counter1 = Arc::new(AtomicUsize::new(0));
     let addr1 = spawn_dynamic_upstream(counter1.clone(), "cluster1-response").await;
@@ -65,16 +65,15 @@ admin:
 clusters:
   - name: "c1"
     endpoints:
-      - addr: "{}"
+      - addr: "{addr1}"
   - name: "c2"
     endpoints:
-      - addr: "{}"
+      - addr: "{addr2}"
 routes:
   - name: "route-alpha"
     path: "/alpha"
     cluster: "c1"
-"#,
-        addr1, addr2
+"#
     );
 
     fs::write(&config_path, initial_yaml).unwrap();
@@ -102,10 +101,10 @@ admin:
 clusters:
   - name: "c1"
     endpoints:
-      - addr: "{}"
+      - addr: "{addr1}"
   - name: "c2"
     endpoints:
-      - addr: "{}"
+      - addr: "{addr2}"
 routes:
   - name: "route-alpha"
     path: "/alpha"
@@ -113,8 +112,7 @@ routes:
   - name: "route-beta"
     path: "/beta"
     cluster: "c2"
-"#,
-        addr1, addr2
+"#
     );
 
     fs::write(&config_path, updated_yaml).unwrap();

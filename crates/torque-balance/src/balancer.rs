@@ -9,20 +9,15 @@ use crate::algorithms::{
 use crate::endpoint::Endpoint;
 
 /// Load balancing policy strategy.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum LbPolicy {
     RoundRobin,
     LeastConn,
+    #[default]
     PeakEwma,
     Ketama,
     Maglev,
     Random,
-}
-
-impl Default for LbPolicy {
-    fn default() -> Self {
-        LbPolicy::PeakEwma
-    }
 }
 
 /// Unified load balancer managing traffic dispatch across a cluster of endpoints.

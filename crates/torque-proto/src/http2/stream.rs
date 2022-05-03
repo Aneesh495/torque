@@ -70,7 +70,7 @@ impl Http2Stream {
             other => Err(TorqueError::Http2Stream {
                 stream_id: self.id,
                 error_code: 1, // PROTOCOL_ERROR
-                detail: format!("Cannot send HEADERS in {:?} state", other),
+                detail: format!("Cannot send HEADERS in {other:?} state"),
             }),
         }
     }
@@ -109,7 +109,7 @@ impl Http2Stream {
             other => Err(TorqueError::Http2Stream {
                 stream_id: self.id,
                 error_code: 1,
-                detail: format!("Cannot receive HEADERS in {:?} state", other),
+                detail: format!("Cannot receive HEADERS in {other:?} state"),
             }),
         }
     }
@@ -132,7 +132,7 @@ impl Http2Stream {
             other => Err(TorqueError::Http2Stream {
                 stream_id: self.id,
                 error_code: 1,
-                detail: format!("Cannot send DATA in {:?} state", other),
+                detail: format!("Cannot send DATA in {other:?} state"),
             }),
         }
     }
@@ -155,7 +155,7 @@ impl Http2Stream {
             other => Err(TorqueError::Http2Stream {
                 stream_id: self.id,
                 error_code: 1,
-                detail: format!("Cannot receive DATA in {:?} state", other),
+                detail: format!("Cannot receive DATA in {other:?} state"),
             }),
         }
     }

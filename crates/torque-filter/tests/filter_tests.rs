@@ -15,18 +15,18 @@ fn create_test_jwt(secret: &[u8], sub: &str, exp_offset_secs: i64) -> String {
     let header = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
     let now = torque_core::time::unix_timestamp_secs() as i64;
     let exp = now + exp_offset_secs;
-    let payload = format!("{{\"sub\":\"{}\",\"exp\":{}}}", sub, exp);
+    let payload = format!("{{\"sub\":\"{sub}\",\"exp\":{exp}}}");
 
     let h_b64 = URL_SAFE_NO_PAD.encode(header.as_bytes());
     let p_b64 = URL_SAFE_NO_PAD.encode(payload.as_bytes());
-    let signing_input = format!("{}.{}", h_b64, p_b64);
+    let signing_input = format!("{h_b64}.{p_b64}");
 
     let mut mac = HmacSha256::new_from_slice(secret).unwrap();
     mac.update(signing_input.as_bytes());
     let sig = mac.finalize().into_bytes();
-    let s_b64 = URL_SAFE_NO_PAD.encode(&sig);
+    let s_b64 = URL_SAFE_NO_PAD.encode(sig);
 
-    format!("{}.{}", signing_input, s_b64)
+    format!("{signing_input}.{s_b64}")
 }
 
 #[tokio::test]
@@ -37,7 +37,7 @@ async fn test_jwt_auth_filter_valid_token() {
     let filter = JwtAuthFilter::new(secret);
     let mut req = Request::new(Method::Get, "/api/v1/trades");
     req.headers
-        .insert("authorization", format!("Bearer {}", token));
+        .insert("authorization", format!("Bearer {token}"));
 
     let mut ctx = FilterContext::new();
     let action = filter.on_request(&mut req, &mut ctx).await.unwrap();
@@ -56,7 +56,7 @@ async fn test_jwt_auth_filter_expired_token() {
     let filter = JwtAuthFilter::new(secret);
     let mut req = Request::new(Method::Get, "/api/v1/trades");
     req.headers
-        .insert("authorization", format!("Bearer {}", token));
+        .insert("authorization", format!("Bearer {token}"));
 
     let mut ctx = FilterContext::new();
     let action = filter.on_request(&mut req, &mut ctx).await.unwrap();

@@ -136,8 +136,7 @@ impl MetricsRegistry {
                 bound.to_string()
             };
             out.push_str(&format!(
-                "torque_request_duration_ms_bucket{{le=\"{}\"}} {}\n",
-                le_str, cumulative
+                "torque_request_duration_ms_bucket{{le=\"{le_str}\"}} {cumulative}\n"
             ));
         }
         out.push_str(&format!(

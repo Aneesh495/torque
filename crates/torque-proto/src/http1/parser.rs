@@ -228,12 +228,9 @@ impl Http1Parser {
 
 /// Find index of the first `\r\n\r\n` boundary in byte slice.
 fn find_header_end(src: &[u8]) -> Option<usize> {
-    for i in 0..src.len().saturating_sub(3) {
-        if src[i] == b'\r' && src[i + 1] == b'\n' && src[i + 2] == b'\r' && src[i + 3] == b'\n' {
-            return Some(i);
-        }
-    }
-    None
+    (0..src.len().saturating_sub(3)).find(|&i| {
+        src[i] == b'\r' && src[i + 1] == b'\n' && src[i + 2] == b'\r' && src[i + 3] == b'\n'
+    })
 }
 
 /// Strip trailing `\r` from a line slice.

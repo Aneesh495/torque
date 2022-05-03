@@ -136,12 +136,11 @@ impl CircuitBreaker {
 
         if state == CircuitState::Closed {
             let snap = self.window.snapshot();
-            if snap.total >= self.config.min_request_volume {
-                if snap.failure_rate >= self.config.failure_rate_threshold
-                    || snap.slow_rate >= self.config.slow_call_rate_threshold
-                {
-                    self.trip_open();
-                }
+            if snap.total >= self.config.min_request_volume
+                && (snap.failure_rate >= self.config.failure_rate_threshold
+                    || snap.slow_rate >= self.config.slow_call_rate_threshold)
+            {
+                self.trip_open();
             }
         }
     }

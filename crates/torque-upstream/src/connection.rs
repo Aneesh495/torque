@@ -27,7 +27,7 @@ impl UpstreamConnection {
             .map_err(|e| TorqueError::UpstreamUnreachable {
                 cluster: "upstream".to_string(),
                 endpoint: addr.to_string(),
-                detail: format!("TCP connect failed: {}", e),
+                detail: format!("TCP connect failed: {e}"),
             })?;
 
         let _ = stream.set_nodelay(true);
@@ -51,7 +51,7 @@ impl UpstreamConnection {
                 TorqueError::UpstreamUnreachable {
                     cluster: "upstream".to_string(),
                     endpoint: self.addr.to_string(),
-                    detail: format!("Write error: {}", e),
+                    detail: format!("Write error: {e}"),
                 }
             })?;
 
@@ -63,7 +63,7 @@ impl UpstreamConnection {
                     TorqueError::UpstreamUnreachable {
                         cluster: "upstream".to_string(),
                         endpoint: self.addr.to_string(),
-                        detail: format!("Read error: {}", e),
+                        detail: format!("Read error: {e}"),
                     }
                 })?;
 

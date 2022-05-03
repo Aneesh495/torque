@@ -291,8 +291,8 @@ async fn run_top(args: TopArgs) -> Result<()> {
                     let sent_kb = bytes["sent"].as_f64().unwrap_or(0.0) / 1024.0;
                     let recv_kb = bytes["received"].as_f64().unwrap_or(0.0) / 1024.0;
                     println!("  Bandwidth:");
-                    println!("    Bytes Sent:         {:.2} KB", sent_kb);
-                    println!("    Bytes Received:     {:.2} KB", recv_kb);
+                    println!("    Bytes Sent:         {sent_kb:.2} KB");
+                    println!("    Bytes Received:     {recv_kb:.2} KB");
                     println!();
                     let lat = &v["latency"];
                     println!("  Latency Distribution (HDR logarithmic):");
@@ -344,8 +344,7 @@ async fn run_bench(args: BenchArgs) -> Result<()> {
 
         handles.push(tokio::spawn(async move {
             let req_str = format!(
-                "GET {} HTTP/1.1\r\nHost: {}\r\nConnection: keep-alive\r\n\r\n",
-                path_clone, target_addr
+                "GET {path_clone} HTTP/1.1\r\nHost: {target_addr}\r\nConnection: keep-alive\r\n\r\n"
             );
             let req_bytes = req_str.as_bytes();
 
@@ -387,9 +386,9 @@ async fn run_bench(args: BenchArgs) -> Result<()> {
     let guard = hist.lock();
     println!("\nResults:");
     println!("  Total Duration:     {:.3} s", elapsed.as_secs_f64());
-    println!("  Successful Calls:   {}", total_done);
-    println!("  Failed Calls:       {}", total_errs);
-    println!("  Throughput:         {:.1} requests/sec", rps);
+    println!("  Successful Calls:   {total_done}");
+    println!("  Failed Calls:       {total_errs}");
+    println!("  Throughput:         {rps:.1} requests/sec");
     println!();
     println!("Latency percentiles:");
     println!("  p50:                {:.2} ms", guard.quantile(0.50));

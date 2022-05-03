@@ -7,7 +7,7 @@ use torque_balance::endpoint::Endpoint;
 use torque_balance::health::{EndpointHealthTracker, OutlierConfig, OutlierDetector};
 
 fn make_endpoint(ip: &str, port: u16, weight: u32) -> std::sync::Arc<Endpoint> {
-    let addr: SocketAddr = format!("{}:{}", ip, port).parse().unwrap();
+    let addr: SocketAddr = format!("{ip}:{port}").parse().unwrap();
     Endpoint::new(addr, weight)
 }
 

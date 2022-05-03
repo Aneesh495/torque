@@ -35,7 +35,7 @@ impl HpackDecoder {
                 // 1xxxxxxx: Indexed Header Field Representation (Section 6.1)
                 let idx = decode_integer(src, &mut cursor, 7)?;
                 let field = self.table.get(idx).ok_or_else(|| {
-                    TorqueError::hpack(format!("Indexed header out of bounds: {}", idx))
+                    TorqueError::hpack(format!("Indexed header out of bounds: {idx}"))
                 })?;
                 fields.push(field);
             } else if (first & 0x40) != 0 {
@@ -47,7 +47,7 @@ impl HpackDecoder {
                     (name, value)
                 } else {
                     let field = self.table.get(idx).ok_or_else(|| {
-                        TorqueError::hpack(format!("Name index out of bounds: {}", idx))
+                        TorqueError::hpack(format!("Name index out of bounds: {idx}"))
                     })?;
                     let value = decode_string(src, &mut cursor)?;
                     (field.name, value)
@@ -68,7 +68,7 @@ impl HpackDecoder {
                     (name, value)
                 } else {
                     let field = self.table.get(idx).ok_or_else(|| {
-                        TorqueError::hpack(format!("Name index out of bounds: {}", idx))
+                        TorqueError::hpack(format!("Name index out of bounds: {idx}"))
                     })?;
                     let value = decode_string(src, &mut cursor)?;
                     (field.name, value)

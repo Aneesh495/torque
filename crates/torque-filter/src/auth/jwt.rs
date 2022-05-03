@@ -103,7 +103,7 @@ impl Filter for JwtAuthFilter {
         };
 
         let token = if auth_hdr.to_ascii_lowercase().starts_with("bearer ") {
-            &auth_hdr[7..].trim()
+            auth_hdr[7..].trim()
         } else {
             auth_hdr.trim()
         };

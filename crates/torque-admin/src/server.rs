@@ -89,7 +89,7 @@ impl AdminServer {
                         }
                         Err(e) => {
                             let mut resp = Response::new(500);
-                            resp.body = Bytes::from(format!("{{\"error\":\"{}\"}}\n", e));
+                            resp.body = Bytes::from(format!("{{\"error\":\"{e}\"}}\n"));
                             resp.headers.insert("content-type", "application/json");
                             resp
                         }
@@ -117,7 +117,7 @@ impl AdminServer {
                         error!(error = %e, "Administrative configuration reload failed");
                         let mut resp = Response::new(500);
                         resp.body =
-                            Bytes::from(format!("{{\"status\":\"failed\",\"error\":\"{}\"}}\n", e));
+                            Bytes::from(format!("{{\"status\":\"failed\",\"error\":\"{e}\"}}\n"));
                         resp.headers.insert("content-type", "application/json");
                         resp
                     }

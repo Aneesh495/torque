@@ -17,26 +17,25 @@ pub enum Segment {
 impl Segment {
     /// Parse a single segment string token into a Segment enum.
     pub fn parse(token: &str) -> Result<Self> {
-        if token.starts_with('*') {
-            let name = if token.len() > 1 {
-                token[1..].to_string()
+        if let Some(rest) = token.strip_prefix('*') {
+            let name = if !rest.is_empty() {
+                rest.to_string()
             } else {
                 "wildcard".to_string()
             };
             Ok(Segment::Wildcard(name))
-        } else if token.starts_with(':') {
-            let remainder = &token[1..];
+        } else if let Some(remainder) = token.strip_prefix(':') {
             if let Some(open_angle) = remainder.find('<') {
                 if !remainder.ends_with('>') {
                     return Err(TorqueError::config(
                         "router",
-                        format!("Unclosed regex constraint in parameter segment: {}", token),
+                        format!("Unclosed regex constraint in parameter segment: {token}"),
                     ));
                 }
                 let name = remainder[..open_angle].to_string();
                 let pattern = &remainder[open_angle + 1..remainder.len() - 1];
                 let re = Regex::new(pattern).map_err(|e| {
-                    TorqueError::config("router", format!("Invalid regex '{}': {}", pattern, e))
+                    TorqueError::config("router", format!("Invalid regex '{pattern}': {e}"))
                 })?;
                 Ok(Segment::Param {
                     name,

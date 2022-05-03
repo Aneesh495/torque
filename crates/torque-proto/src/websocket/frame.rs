@@ -115,7 +115,7 @@ impl WsFrame {
         let rsv = (byte0 >> 4) & 0x07;
         let opcode_raw = byte0 & 0x0F;
         let opcode = Opcode::from_u8(opcode_raw).ok_or_else(|| TorqueError::WebSocket {
-            detail: format!("Invalid opcode: 0x{:x}", opcode_raw),
+            detail: format!("Invalid opcode: 0x{opcode_raw:x}"),
         })?;
 
         let byte1 = src[1];

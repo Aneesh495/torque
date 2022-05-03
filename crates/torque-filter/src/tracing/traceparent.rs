@@ -31,7 +31,7 @@ impl Filter for TraceparentFilter {
                 let span_id: [u8; 8] = rng.gen();
                 let trace_hex = hex_encode(&trace_id);
                 let span_hex = hex_encode(&span_id);
-                format!("00-{}-{}-01", trace_hex, span_hex)
+                format!("00-{trace_hex}-{span_hex}-01")
             }
         };
 
@@ -55,7 +55,7 @@ impl Filter for TraceparentFilter {
 fn hex_encode(bytes: &[u8]) -> String {
     let mut s = String::with_capacity(bytes.len() * 2);
     for b in bytes {
-        s.push_str(&format!("{:02x}", b));
+        s.push_str(&format!("{b:02x}"));
     }
     s
 }

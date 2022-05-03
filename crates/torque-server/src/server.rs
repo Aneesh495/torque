@@ -70,7 +70,7 @@ impl TorqueServer {
         let server_addr: SocketAddr = config.server.bind_addr.parse().map_err(|e| {
             TorqueError::config(
                 "server.bind_addr",
-                format!("Invalid proxy server bind address: {}", e),
+                format!("Invalid proxy server bind address: {e}"),
             )
         })?;
 
@@ -78,7 +78,7 @@ impl TorqueServer {
             Some(config.admin.bind_addr.parse().map_err(|e| {
                 TorqueError::config(
                     "admin.bind_addr",
-                    format!("Invalid admin server bind address: {}", e),
+                    format!("Invalid admin server bind address: {e}"),
                 )
             })?)
         } else {

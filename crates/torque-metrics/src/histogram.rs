@@ -59,7 +59,10 @@ impl HdrHistogram {
 
     /// Calculate estimated quantile latency (e.g. 0.50, 0.90, 0.99).
     pub fn quantile(&self, q: f64) -> f64 {
-        assert!(q >= 0.0 && q <= 1.0, "Quantile must be in range [0.0, 1.0]");
+        assert!(
+            (0.0..=1.0).contains(&q),
+            "Quantile must be in range [0.0, 1.0]"
+        );
         let total = self.total_count.load(Ordering::Relaxed);
         if total == 0 {
             return 0.0;
